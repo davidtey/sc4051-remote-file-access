@@ -1,37 +1,13 @@
 package server;
-import java.nio.charset.Charset;
-import java.net.*;
-import java.io.*;
+import java.util.Scanner;
+import java.util.InputMismatchException;
 
+/* Server class (main class)
+ */
 public class Server{
+    private static Invocation invocation;
     public static void main(String[] args){
-        
-        DatagramSocket socket = null;
-        int port = 2222;
-        
-        try{
-            socket = new DatagramSocket(port);
-            byte[] buffer = new byte[1000];
-            while (true){
-                DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-                socket.receive(request);
-                
-                System.out.println(new String(request.getData(), Charset.forName("UTF-8")));
-
-                DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(), 
-                                        request.getAddress(), request.getPort());
-                socket.send(reply);
-            }
-        }
-        catch (IOException e){
-            return;
-        }
-        finally{
-            if (socket != null){
-                socket.close();
-            }
-        }
-        
+        initialMenu();
 
         /* 
         ServerFile serverFile = new ServerFile("server/database/file1.txt");
@@ -39,5 +15,39 @@ public class Server{
         System.out.println(out);
 
         serverFile.write("hello\n".getBytes(Charset.forName("UTF-8")), 6);*/
+    }
+
+    private static void initialMenu(){
+        boolean validChoice = false;
+        Scanner myScanner = new Scanner(System.in);
+        int choice;
+
+        while (!validChoice){
+            System.out.println("\n===== Remove File Access System Server =====");
+            System.out.println("1. At-least-once invocation semantics");
+            System.out.println("2. At-most-once invocation semantics");
+            System.out.print("Please choose the invocation semantics: ");
+            
+            try{
+                choice = myScanner.nextInt();
+                if (choice != 1 && choice != 2){
+                    System.err.println("Please enter either 1 or 2!");
+                    continue;
+                }
+            }
+            catch(InputMismatchException e){
+                System.err.println("Please enter either 1 or 2!");
+                continue;
+            }
+
+            if (choice == 1){
+                invocation = Invocation.AT_LEAST_ONCE;
+            }
+            else{
+                invocation = Invocation.AT_MOST_ONCE;
+            }
+            validChoice = true;
+            myScanner.close();
+        }
     }
 }
