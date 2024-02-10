@@ -1,13 +1,10 @@
 #include "client.h"
-# define MSG_WAITALL 0x08
 
 using namespace std;
 
 class Client{
     private:
-        string clientIP;
         string serverIP;
-        int clientPort;
         int serverPort;
         int sockfd;
 
@@ -17,7 +14,6 @@ class Client{
             while (!connected){
                 cout << "\n===== Remote File Access System =====\n";
                 cout << "To access remote files, please connect to the server.\n";
-                clientPort = readInt("Client port:");
                 cout << "Server address: ";
                 cin >> serverIP;
                 serverPort = readInt("Server port: ");
@@ -151,43 +147,26 @@ class Client{
             servaddr.sin_port = htons(serverPort);
             servaddr.sin_addr.s_addr = inet_addr(serverIP.c_str());
 
-            clientaddr.sin_family = AF_INET;
-            clientaddr.sin_port = htons(clientPort);
-            clientaddr.sin_addr.s_addr = inet_addr(serverIP.c_str());
-
             const char *hello = "Hello from client";
-
-            //bind(sockfd, (const struct sockaddr *) &clientaddr, sizeof(clientaddr));
 
             sendto(sockfd, (const char *) hello, strlen(hello), 0,
                 (const struct sockaddr *) &servaddr, sizeof(servaddr)); 
 
             char buffer[1024];
             int n;
-            socklen_t len;
+            socklen_t servaddrLen = sizeof(servaddr);
 
             n = recvfrom(sockfd, (char *)buffer, 1024,  
-                MSG_WAITALL, (struct sockaddr *) &servaddr, 
-                &len); 
+                0, (struct sockaddr *) &servaddr, &servaddrLen); 
             
             buffer[n] = '\0'; 
 
-            cout << "n: " << n << endl;
-            cout << "Server :";
-
-            for (int i=0; i<10; i++){
-                
-                cout << buffer[i];
-            }
-
-            cout << "\nWSAGetLastError: " << WSAGetLastError();
-            
+            cout << "Server :" << buffer << endl;
         }
 
         int startProcess(){
             return mainMenu();
         }
-
 };
 
 int main(){
