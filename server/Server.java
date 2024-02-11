@@ -1,23 +1,35 @@
 package server;
+import java.nio.charset.Charset;
 import java.util.Scanner;
 import java.util.InputMismatchException;
+import java.net.DatagramPacket;
 
 /* Server class (main class)
  */
 public class Server{
     private static Invocation invocation;
     public static void main(String[] args){
-        initialMenu();
+        invocationMenu();
+        UDPServer udpServer = new UDPServer();
+        DatagramPacket request;
+        System.out.println("\n ----- Request log -----");
 
-        /* 
-        ServerFile serverFile = new ServerFile("server/database/file1.txt");
-        String out = new String(serverFile.read(), Charset.forName("UTF-8"));
-        System.out.println(out);
+        while (true){
+            // await request
+            request = udpServer.receive();
 
-        serverFile.write("hello\n".getBytes(Charset.forName("UTF-8")), 6);*/
+            // handle request
+            System.out.println(new String(request.getData(), Charset.forName("UTF-8"))); // test print
+
+            // send reply
+            udpServer.send(request.getData(), request.getLength(), request.getAddress(), request.getPort()); // test reply
+        }
+
     }
-
-    private static void initialMenu(){
+    /* Server invocation menu
+     * Allow user to select invocation semantics
+     */
+    private static void invocationMenu(){
         boolean validChoice = false;
         Scanner myScanner = new Scanner(System.in);
         int choice;
@@ -30,12 +42,12 @@ public class Server{
             
             try{
                 choice = myScanner.nextInt();
-                if (choice != 1 && choice != 2){
+                if (choice != 1 && choice != 2){    // catch invalid integer input
                     System.err.println("Please enter either 1 or 2!");
                     continue;
                 }
             }
-            catch(InputMismatchException e){
+            catch(InputMismatchException e){        // catch non integer input
                 System.err.println("Please enter either 1 or 2!");
                 continue;
             }
@@ -46,6 +58,9 @@ public class Server{
             else{
                 invocation = Invocation.AT_MOST_ONCE;
             }
+
+            System.out.println(invocation + " invocation semantics has been selected.");
+
             validChoice = true;
             myScanner.close();
         }

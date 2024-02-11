@@ -2,8 +2,8 @@ package server;
 import java.net.*;
 import java.io.IOException;
 
-/*  UDPServer Class
- *  Handles all UDP communication with UDPClients
+/* UDPServer Class
+ * Handles all UDP communication with UDPClients
  */
 public class UDPServer {
     private DatagramSocket socket;
@@ -11,7 +11,9 @@ public class UDPServer {
     private final int BUFFER_SIZE = 1024;
     private byte[] buffer;
 
-    public UDPServer(){ // UDPServer constructor
+    /* UDPServer Constructor
+     */
+    public UDPServer(){
         buffer = new byte[BUFFER_SIZE];
         try{
             socket = new DatagramSocket(port);  // create server socket
@@ -21,7 +23,10 @@ public class UDPServer {
         }
     }
 
-    public byte[] receive(){    // receive requests (blocking)
+    /* Receives next request (Waits for the next request to arrive)
+     * returns DatagramPacket containing message (byte array), length, address and port
+     */
+    public DatagramPacket receive(){
         DatagramPacket request = new DatagramPacket(buffer, buffer.length);
         try{
             socket.receive(request);
@@ -30,10 +35,13 @@ public class UDPServer {
             System.err.println("IOException occurred while receiving request!");
         }
         
-        return request.getData();
+        return request;
     }
 
-    public void send(byte[] buf, int length, InetAddress address, int port){ // send replies to client
+    /* Sends reply to client
+     * Requires message (byte array), length, address and port
+     */
+    public void send(byte[] buf, int length, InetAddress address, int port){
         DatagramPacket reply = new DatagramPacket(buf, length, address, port);
         try{
             socket.send(reply);
