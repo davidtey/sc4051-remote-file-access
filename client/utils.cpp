@@ -20,11 +20,11 @@ void utils::marshalString(string s, char *b){
 void utils::marshalInt(int host_i, char *b){
     int net_i = htonl(host_i);
     char *cur = b;
+    char *net_i_p = (char*) &net_i;
 
-    *cur = (net_i & 0xff000000) >> 24;
-    *(cur + 1) = (net_i & 0x00ff0000) >> 16;
-    *(cur + 1) = (net_i & 0x0000ff00) >> 8;
-    *(cur + 1) = net_i & 0x000000ff;
+    for (int i=0; i<4; i++){
+        *(cur + i) = *(net_i_p + i);
+    }
 }
 
 void utils::unmarshal(string s, char *b){
