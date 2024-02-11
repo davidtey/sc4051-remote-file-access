@@ -1,8 +1,10 @@
 package server;
-import java.nio.charset.Charset;
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.net.DatagramPacket;
+import java.util.List;
+import java.util.ArrayList;
+import java.nio.charset.Charset;
 
 /* Server class (main class)
  */
@@ -13,14 +15,21 @@ public class Server{
         invocationMenu();
         UDPServer udpServer = new UDPServer();
         DatagramPacket request;
-        System.out.println("\n ----- Request log -----");
+        System.out.println("\n ---------- Request log ----------");
+        List<RequestHandler> requestHistory = new ArrayList<RequestHandler>();
 
         while (true){
             // await request
             request = udpServer.receive();
 
             // handle request
-            System.out.println(new String(request.getData(), Charset.forName("UTF-8"))); // test print
+            RequestHandler requestHandler = Utils.handleIncomingRequest(request);
+            requestHandler.unmarshalRequest();
+            requestHistory.add(requestHandler);
+            System.out.println(requestHandler); // print incoming request onto server console
+            
+            
+            //System.out.println(new String(request.getData(), Charset.forName("UTF-8"))); // test print
 
             // send reply
             udpServer.send(request.getData(), request.getLength(), request.getAddress(), request.getPort()); // test reply
