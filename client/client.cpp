@@ -21,6 +21,7 @@ int Client::connectMenu(){
             connected = true;
         }
     }
+    return 1;
 }
 
 /* Client invocation menu
@@ -32,6 +33,7 @@ int Client::invocationMenu(){
     cout << "1. At-least-once invocation semantics" << endl;
     cout << "2. At-most-once invocation semantics" << endl;
     invocationInput = readInt("Please choose the invocation semantics: ", 1, 2);
+    return 1;
 }
 
 /* Client main menu

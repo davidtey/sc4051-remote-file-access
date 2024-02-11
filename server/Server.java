@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 /* Server class (main class)
  */
 public class Server{
+
     private static Invocation invocation;
     public static void main(String[] args){
         invocationMenu();
