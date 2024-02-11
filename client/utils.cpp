@@ -3,19 +3,19 @@
 #include <iostream>
 using namespace std;
 
-/* Marshals a string (copy over to byte array)
+/* Marshals a string
+ * Returns by reference to buffer
 */
 void utils::marshalString(string s, char *b){
     char *cur = b;
     for (int i=0; i < s.size(); i++){
-        *cur = s[i];
-        cur++;
+        *(cur + i) = s[i];
     }
 }
 
 /* Marshals an integer
  * Converts hostlong integer to netlong
- * Save integer into byte array
+ * Returns by reference to buffer
 */
 void utils::marshalInt(int host_i, char *b){
     int net_i = htonl(host_i);
