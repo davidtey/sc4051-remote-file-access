@@ -9,12 +9,10 @@ public class UDPServer {
     private DatagramSocket socket;
     private int port = 2222;
     private final int BUFFER_SIZE = 1024;
-    private byte[] buffer;
 
     /* UDPServer Constructor
      */
     public UDPServer(){
-        buffer = new byte[BUFFER_SIZE];
         try{
             socket = new DatagramSocket(port);  // create server socket
         }
@@ -27,15 +25,18 @@ public class UDPServer {
      * returns DatagramPacket containing message (byte array), length, address and port
      */
     public DatagramPacket receive(){
-        DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+        
         try{
+            byte[] buffer = new byte[BUFFER_SIZE];
+            DatagramPacket request = new DatagramPacket(buffer, buffer.length);
             socket.receive(request);
+            return request;
         }
         catch(IOException e){
             System.err.println("IOException occurred while receiving request!");
         }
         
-        return request;
+        return null;
     }
 
     /* Sends reply to client
