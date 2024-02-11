@@ -22,7 +22,7 @@ class UDPClient{
     public:
         UDPClient();
         int connectServer(string ip, int port);
-        int send(char *msg);
+        int send(const char *msg, int msgLen);
         int recv(char *buffer);
 };
 #endif
