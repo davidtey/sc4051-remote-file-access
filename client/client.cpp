@@ -2,175 +2,150 @@
 
 using namespace std;
 
-class Client{
-    private:
-        string serverIP;
-        int serverPort;
-        int sockfd;
+/* Client connect menu
+ * Allow client to specify server address & port
+*/
+int Client::connectMenu(){
+    bool connected = false;
+    string serverIP;
+    int serverPort;
 
-        int connectMenu(){
-            bool connected = false;
+    while (!connected){
+        cout << "\n===== Remote File Access System Client =====\n";
+        cout << "To access remote files, please connect to the server.\n";
+        cout << "Server address: ";
+        cin >> serverIP;
+        serverPort = readInt("Server port: ", 0, 65535);
 
-            while (!connected){
-                cout << "\n===== Remote File Access System =====\n";
-                cout << "To access remote files, please connect to the server.\n";
-                cout << "Server address: ";
-                cin >> serverIP;
-                serverPort = readInt("Server port: ");
+        if (udpClient.connectServer(serverIP, serverPort) == 1){
+            connected = true;
+        }
+    }
+}
 
-                connected = true;
-            }
+/* Client invocation menu
+ * Allow client to specify invocation semantics
+*/
+int Client::invocationMenu(){
+    int invocationInput;
+
+    cout << "1. At-least-once invocation semantics" << endl;
+    cout << "2. At-most-once invocation semantics" << endl;
+    invocationInput = readInt("Please choose the invocation semantics: ", 1, 2);
+}
+
+/* Client main menu
+ * Allow client to navigate the file system and send requests to server
+ * Actions include: 
+ * 1. Read file (string filePath, int offset, int numBytes)
+ * 2. Write to file (string filePath, int offset, string insertString)
+ * 3. Monitor file (string filePath, int monitorInterval)
+ * 4. Quit
+*/
+int Client::mainMenu(){
+    int choice = 0;
+    string filePath, insertString;
+    int offset, numBytes, monitorInterval;
+    while (choice != 4){
+        cout << "\n===== Remote File Access System =====\n";
+        cout << "1. Read file\n";
+        cout << "2. Write to file\n";
+        cout << "3. Monitor file updates\n";
+        cout << "4. Quit\n";
+        choice = readInt("Action: ", 1, 4);
+
+        offset, numBytes, monitorInterval = -1;
+
+        switch (choice){
+            case 1:                     // read file
+                cout << "\n----- Read File -----\n";
+                cout << "File path: ";
+                getline(cin >> ws, filePath);
+
+                offset = readInt("Read offset (in bytes): ", 0, INT_MAX);
+                numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);
+
+                udpClient.send((char *)"Trying to read file...");
+
+                char buffer[1024];
+                udpClient.recv(buffer);
+                cout << "Reply from server: " << buffer << endl;
+                break;
             
-        }
+            case 2:                     // write to file
+                cout << "\n----- Write to File -----\n";
+                cout << "File path: ";
+                getline(cin >> ws, filePath);
 
-        int mainMenu(){
-            int choice = 0;
-            string filePath, insertString;
-            int offset, numBytes, monitorInterval;
-            while (choice != 4){
-                cout << "\n===== Remote File Access System =====\n";
-                cout << "1. Read file\n";
-                cout << "2. Write to file\n";
-                cout << "3. Monitor file updates\n";
-                cout << "4. Quit\n";
-                cout << "Action: ";
-                offset, numBytes, monitorInterval = -1;
-                
+                offset = readInt("Write offset (in bytes): ", 0, INT_MAX);
 
-                cin >> choice;
+                cout << "Insert string: ";
+                getline(cin >> ws, insertString);
+                break;
 
-                if (cin.fail()) {   // handle non digit inputs
-                    cin.clear();
-                    cin.sync();
-                    cout << "Please enter an integer from 1 to 4!\n";
-                    continue;
-                }
+            case 3:                     // monitor file
+                cout << "\n----- Monitor File -----\n";
+                cout << "File path: ";
+                getline(cin >> ws, filePath);
+                monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX);
+                break;
 
-                switch (choice){
-                    case 1:                     // read file
-                        cout << "\n----- Read File -----\n";
-                        cout << "File path: ";
-                        getline(cin >> ws, filePath);
-
-                        offset = readInt("Read offset (in bytes): ");
-                        numBytes = readInt("Number of bytes to read: ");
-
-                        break;
-                    
-                    case 2:                     // write to file
-                        cout << "\n----- Write to File -----\n";
-                        cout << "File path: ";
-                        getline(cin >> ws, filePath);
-
-                        offset = readInt("Write offset (in bytes): ");
-
-                        cout << "Insert string: ";
-                        getline(cin >> ws, insertString);
-                        break;
-
-                    case 3:                     // monitor file
-                        cout << "\n----- Monitor File -----\n";
-                        cout << "File path: ";
-                        getline(cin >> ws, filePath);
-                        monitorInterval = readInt("Monitor interval (in s): ");
-                        break;
-
-                    case 4:                     // quit
-                        cout << "Closing program...\n";
-                        return 1;
-                    
-                    default:
-                        cout << "Please enter integer from 1 to 4!\n";
-                }
-            }
-        }
-
-        int readInt(string prompt){
-            int input = -1;
-
-            while (input < 0){
-                cout << prompt;
-                cin >> input;
-
-                if (cin.fail()) {   // handle non digit inputs
-                        cin.clear();
-                        cin.sync();
-                        cout << "Please enter an integer!\n";
-                        input = -1;
-                        continue;
-                }
-
-                if (input < 0){
-                    cout << "Please enter a positive interger!\n";
-                }
-            }
-            return input;
-        }
-
-    public:
-        Client(){
-            WORD wVersionRequested;
-            WSADATA wsaData;
-            wVersionRequested = MAKEWORD(2, 2);
-
-            WSAStartup(wVersionRequested, &wsaData);
-            connectMenu();
-
-            struct sockaddr_in servaddr;
-            struct sockaddr_in clientaddr;
+            case 4:                     // quit
+                cout << "Closing program...\n";
+                return 1;
             
-            char hostbuffer[256];
-            char *IPbuffer;
-            struct hostent *host_entry;
-            int hostname;
-        
-            // To retrieve hostname
-            hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-        
-            // To retrieve host information
-            host_entry = gethostbyname(hostbuffer);
-        
-            // To convert an Internet network
-            // address into ASCII string
-            IPbuffer = inet_ntoa(*((struct in_addr*)
-                                host_entry->h_addr_list[0]));
-            
+            default:
+                cout << "Please enter integer from 1 to 4!\n";
+        }
+    }
+}
 
-            if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ){
-                cout << "Socket creation failed with error " << sockfd << ", " << WSAGetLastError();;
-                exit(EXIT_FAILURE);
-            }
+/* Read integer from user input, assumes nonnegative input and does error checking for non integer input
+ * and within valid range.
+ * prompt: message prompt for user
+ * min: minimum of valid range
+ * max: maximum of valid range
+*/
+int Client::readInt(string prompt, int min, int max){
+    int input = -1;
 
-            memset(&servaddr, 0, sizeof(servaddr)); 
+    while (input == -1){
+        cout << prompt;
+        cin >> input;
 
-            servaddr.sin_family = AF_INET;
-            servaddr.sin_port = htons(serverPort);
-            servaddr.sin_addr.s_addr = inet_addr(serverIP.c_str());
-
-            const char *hello = "Hello from client";
-
-            sendto(sockfd, (const char *) hello, strlen(hello), 0,
-                (const struct sockaddr *) &servaddr, sizeof(servaddr)); 
-
-            char buffer[1024];
-            int n;
-            socklen_t servaddrLen = sizeof(servaddr);
-
-            n = recvfrom(sockfd, (char *)buffer, 1024,  
-                0, (struct sockaddr *) &servaddr, &servaddrLen); 
-            
-            buffer[n] = '\0'; 
-
-            cout << "Server :" << buffer << endl;
+        if (cin.fail()) {   // handle non digit inputs
+                cin.clear();
+                cin.sync();
+                cout << "Please enter an integer!\n";
+                input = -1;
+                continue;
         }
 
-        int startProcess(){
-            return mainMenu();
+        if (input < min || input > max){
+            cout << "Please enter an integer between " << min << " and " << max << "!" << endl;
         }
-};
+    }
+    return input;
+}
 
+/* Client constructor
+ * Calls connect menu to initialise & check connection
+*/ 
+Client::Client(){
+    connectMenu();
+}
+
+/* Start client process
+ * Starts main menu
+*/
+int Client::startProcess(){
+    return mainMenu();
+}
+
+/* Main program
+ * Creates client & starts it
+*/
 int main(){
     Client client;
     client.startProcess();
 }
-
