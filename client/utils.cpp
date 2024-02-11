@@ -6,7 +6,6 @@ using namespace std;
 /* Marshals a string (copy over to byte array)
 */
 void utils::marshalString(string s, char *b){
-    cout << "AAAAAAA" << endl;
     char *cur = b;
     for (int i=0; i < s.size(); i++){
         *cur = s[i];
