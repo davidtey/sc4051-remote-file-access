@@ -16,12 +16,20 @@ void test_marshalling(){
     utils::marshalString(s, buffer);
     cout << buffer << endl;
 
-    int num = 65432;
+    int num = 2864434397;
     char intBuffer[4];
 
     utils::marshalInt(num, intBuffer);
-    for (int i=0; i<4; ++i){
-        cout << hex << setw(2) << setfill('0') << (int) intBuffer[i];
+    for (int i=0; i<4; i++){
+        std::cout << "0x" << std::setw(2) << std::setfill('0') << std::hex << (intBuffer[i] & 0xff) << ' ';
+    }
+
+    cout << "\n\n";
+    int n_num = htonl(num);
+    char *r = (char *) &n_num;
+    
+    for (int j=0; j<4; j++){
+        cout << "0x" << (*(r+j) & 0xff) << ' ';
     }
 }
 
