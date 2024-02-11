@@ -32,8 +32,18 @@ int UDPClient::connectServer(string ip, int port){
     return 1;
 }
 
-int UDPClient::send(char *msg){
-    if (sendto(sockfd, (const char *) msg, strlen(msg), 0, 
+int UDPClient::send(const char *msg, int msgLen){
+    cout << "Sending to server: " << endl;
+    cout << "MsgLen = " << msgLen << endl;
+
+    for(int i=0; i<msgLen; i++){
+        if (i % 4 == 0){
+            cout << " ";
+        }
+        cout << std::hex << (int)msg[i];
+    }
+    
+    if (sendto(sockfd, msg, msgLen, 0, 
     (const struct sockaddr *) &servaddr, sizeof(servaddr)) < 0){
         cout << "Client failed to send message: " << msg << endl;
         return -1;
