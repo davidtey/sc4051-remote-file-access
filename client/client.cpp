@@ -1,4 +1,5 @@
 #include "client.h"
+#include "RequestHandler.h"
 
 using namespace std;
 
@@ -48,6 +49,10 @@ int Client::mainMenu(){
     int choice = 0;
     string filePath, insertString;
     int offset, numBytes, monitorInterval;
+    int reqLength;
+    char reqBuffer[1024];
+    char replyBuffer[1024];
+
     while (choice != 4){
         cout << "\n===== Remote File Access System =====\n";
         cout << "1. Read file\n";
@@ -59,7 +64,7 @@ int Client::mainMenu(){
         offset, numBytes, monitorInterval = -1;
 
         switch (choice){
-            case 1:                     // read file
+            case 1: {                    // read file
                 cout << "\n----- Read File -----\n";
                 cout << "File path: ";
                 getline(cin >> ws, filePath);
@@ -67,13 +72,18 @@ int Client::mainMenu(){
                 offset = readInt("Read offset (in bytes): ", 0, INT_MAX);
                 numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);
 
-                udpClient.send((char *)"Trying to read file...");
+                reqLength = RequestHandler::createReadRequest(filePath, offset, numBytes, reqBuffer);
+                cout << "\nSize: " << reqLength << endl;
+                
+                udpClient.send(reqBuffer, reqLength);
+                
 
-                char buffer[1024];
-                udpClient.recv(buffer);
-                cout << "Reply from server: " << buffer << endl;
+                cout << endl;
+
+                udpClient.recv(replyBuffer);
+                cout << "Reply from server: " << replyBuffer << endl;
                 break;
-            
+            }
             case 2:                     // write to file
                 cout << "\n----- Write to File -----\n";
                 cout << "File path: ";
@@ -100,6 +110,7 @@ int Client::mainMenu(){
                 cout << "Please enter integer from 1 to 4!\n";
         }
     }
+    return 1;
 }
 
 /* Read integer from user input, assumes nonnegative input and does error checking for non integer input
