@@ -10,7 +10,7 @@ public enum HandlerNum {
     INSERTION_ACK,              // 7
     MONITOR_FILE_ACK,           // 8
     MONITOR_FILE_UPDATE,        // 9
-    MONITOR_FILE_EXIT,          // 10
+    MONITOR_FILE_EXPIRE,          // 10
     NETWORK_PING,               // 15
     NETWORK_ACK,                // 16
     ERROR_REPLY;                // 17
@@ -36,7 +36,7 @@ public enum HandlerNum {
             case 9:
                 return MONITOR_FILE_UPDATE;
             case 10:
-                return MONITOR_FILE_EXIT;
+                return MONITOR_FILE_EXPIRE;
             case 15:
                 return NETWORK_PING;
             case 16:
@@ -67,7 +67,7 @@ public enum HandlerNum {
                 return 8;
             case MONITOR_FILE_UPDATE:
                 return 9;
-            case MONITOR_FILE_EXIT:
+            case MONITOR_FILE_EXPIRE:
                 return 10;
             case NETWORK_PING:
                 return 15;
