@@ -9,9 +9,9 @@
 using namespace std;
 
 namespace RequestHandler{
-    int createReadRequest(string filePath, int offset, int numBytes, char *b);
-    int createWriteRequest(string filePath, int offset, string insertString, char *b);
-    int createMonitorRequest(string filePath, int monitorInterval, char *b);
+    int createReadRequest(int requestID, string filePath, int offset, int numBytes, char *b);
+    int createWriteRequest(int requestID, string filePath, int offset, string insertString, char *b);
+    int createMonitorRequest(int requestID, string filePath, int monitorInterval, char *b);
 }
 
 #endif
