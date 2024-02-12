@@ -3,7 +3,6 @@ package server;
 import java.net.InetAddress;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.io.ByteArrayOutputStream;
 
 public class ReadRequestHandler extends RequestHandler {
@@ -19,14 +18,13 @@ public class ReadRequestHandler extends RequestHandler {
     public void unmarshalRequest(){
         int cur = 8;   // skip to first argument
         int filePathLength = Utils.unmarshalInt(request, cur); // get filePath length
-        System.out.println("filePathLength: " + filePathLength);
         cur += 4;       // increment to start of filePath
 
         filePath = Utils.unmarshalString(request, cur, filePathLength); // get filePath
         cur += filePathLength; // increment to start of offset
 
         offset = Utils.unmarshalInt(request, cur); // get offset
-        cur += 4;   //increment to start of numBytes
+        cur += 4;   // increment to start of numBytes
 
         numBytes = Utils.unmarshalInt(request, cur);    // get numBytes
     }
@@ -47,12 +45,15 @@ public class ReadRequestHandler extends RequestHandler {
 
                 reply = outputStream.toByteArray();
             }
-            catch (IOException e){
+            catch (OutOfFileRangeException e){
                 String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + 
                 serverFile.getFile().length();
 
                 reply = new byte[errorString.length() + 8];
                 Utils.marshalErrorString(reply, errorString);
+            }
+            catch (IOException e){
+                return;
             }
 
         }
@@ -64,7 +65,7 @@ public class ReadRequestHandler extends RequestHandler {
     }
 
     public String toString(){
-        return "Read File Request from " + clientAddr + ":" + clientPort + "\nRequest ID: " + requestID + "\nFile path: " + filePath + 
+        return "\nRead File Request from " + clientAddr + ":" + clientPort + "\nRequest ID: " + requestID + "\nFile path: " + filePath + 
         "\nOffset: " + offset + "\nNumber of bytes to read: " + numBytes;
     }
 }
