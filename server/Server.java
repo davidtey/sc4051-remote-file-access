@@ -4,12 +4,11 @@ import java.util.InputMismatchException;
 import java.net.DatagramPacket;
 import java.util.List;
 import java.util.ArrayList;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /* Server class (main class)
  */
 public class Server{
-
     private static Invocation invocation;
     public static void main(String[] args){
         invocationMenu();
@@ -27,12 +26,14 @@ public class Server{
             requestHandler.unmarshalRequest();
             requestHistory.add(requestHandler);
             System.out.println(requestHandler); // print incoming request onto server console
-            
-            
-            //System.out.println(new String(request.getData(), Charset.forName("UTF-8"))); // test print
+
+            requestHandler.executeRequest();
 
             // send reply
-            udpServer.send(request.getData(), request.getLength(), request.getAddress(), request.getPort()); // test reply
+            System.out.println(new String(requestHandler.reply, StandardCharsets.UTF_8));
+            System.out.println(Utils.bytesToHex(requestHandler.reply));
+            udpServer.send(requestHandler.reply, requestHandler.reply.length, 
+            requestHandler.clientAddr, requestHandler.clientPort); // reply to client
         }
 
     }
