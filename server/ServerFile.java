@@ -57,8 +57,18 @@ public class ServerFile {
         return out;
     }
 
+    public byte[] listDir(){
+        String[] dirList = file.list();
+        String out = "";
+        for (String dir : dirList){
+            out += dir + "\n";
+        }
+
+        return out.getBytes();
+    }
+
     public void write(byte[] in, int offset) throws OutOfFileRangeException{
-        if (file.length() - offset < 0){
+        if (offset > file.length()){
             String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + file.length();
             throw new OutOfFileRangeException(errorString);
         }
@@ -84,7 +94,40 @@ public class ServerFile {
             System.out.println("Successfully wrote to the file " + path);
         }
         catch (IOException e){
-            System.err.println("File at " + path + " not found.");
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(int offset, int numBytes) throws OutOfFileRangeException{
+        if (offset > file.length()){
+            String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + file.length();
+            throw new OutOfFileRangeException(errorString);
+        }
+
+        try{
+            FileInputStream fileInputStream = new FileInputStream(file);
+            int end = Math.min(offset + numBytes, (int) file.length() - 1);
+            byte[] before = new byte[offset];
+            byte[] after;
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            fileInputStream.read(before, 0, offset);
+            outputStream.write(before);
+            if (end < file.length()){
+                after = new byte[(int) file.length() - end];
+                fileInputStream.readNBytes(numBytes);
+                fileInputStream.read(after, 0, (int) file.length() - end);
+                outputStream.write(after);
+            }
+            fileInputStream.close();
+            
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(outputStream.toByteArray());
+            fileOutputStream.close();
+            
+            System.out.println("Successfully deleted from the file " + path);
+        }
+        catch (IOException e){
             e.printStackTrace();
         }
     }
