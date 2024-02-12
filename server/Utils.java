@@ -21,8 +21,11 @@ public final class Utils {
         if (requestType == HandlerNum.READ_FILE_REPLY){
             requestHandler = new ReadRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
-        else{ // to do
-            requestHandler = new ReadRequestHandler(request.getAddress(), request.getPort(), requestID, b);
+        else if (requestType == HandlerNum.WRITE_FILE_REQUEST){ 
+            requestHandler = new WriteRequestHandler(request.getAddress(), request.getPort(), requestID, b);
+        }
+        else{
+            requestHandler = new ReadRequestHandler(request.getAddress(), request.getPort(), requestID, b); // to remove
         }
 
         return requestHandler;
