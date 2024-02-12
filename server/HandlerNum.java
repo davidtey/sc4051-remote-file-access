@@ -4,13 +4,15 @@ public enum HandlerNum {
     READ_FILE_REQUEST,          // 1
     WRITE_FILE_REQUEST,         // 2
     MONITOR_FILE_REQUEST,       // 3
-    RESERVED_FILE_REQUEST1,     // 4
-    RESERVED_FILE_REQUEST2,     // 5
+    DELETE_FROM_FILE_REQUEST,   // 4
+    LIST_DIR_REQUEST,           // 5
     READ_FILE_REPLY,            // 6
     INSERTION_ACK,              // 7
     MONITOR_FILE_ACK,           // 8
     MONITOR_FILE_UPDATE,        // 9
-    MONITOR_FILE_EXPIRE,          // 10
+    MONITOR_FILE_EXPIRE,        // 10
+    DELETE_FROM_FILE_ACK,       // 11
+    LIST_DIR_REPLY,             // 12
     NETWORK_PING,               // 15
     NETWORK_ACK,                // 16
     ERROR_REPLY;                // 17
@@ -24,9 +26,9 @@ public enum HandlerNum {
             case 3:
                 return MONITOR_FILE_REQUEST;
             case 4:
-                return RESERVED_FILE_REQUEST1;
+                return DELETE_FROM_FILE_REQUEST;
             case 5:
-                return RESERVED_FILE_REQUEST2;
+                return LIST_DIR_REQUEST;
             case 6:
                 return READ_FILE_REPLY;
             case 7:
@@ -37,6 +39,10 @@ public enum HandlerNum {
                 return MONITOR_FILE_UPDATE;
             case 10:
                 return MONITOR_FILE_EXPIRE;
+            case 11:
+                return DELETE_FROM_FILE_ACK;
+            case 12:
+                return LIST_DIR_REPLY;
             case 15:
                 return NETWORK_PING;
             case 16:
@@ -55,9 +61,9 @@ public enum HandlerNum {
                 return 2;
             case MONITOR_FILE_REQUEST:
                 return 3;
-            case RESERVED_FILE_REQUEST1:
+            case DELETE_FROM_FILE_REQUEST:
                 return 4;
-            case RESERVED_FILE_REQUEST2:
+            case LIST_DIR_REQUEST:
                 return 5;
             case READ_FILE_REPLY:
                 return 6;
@@ -69,6 +75,10 @@ public enum HandlerNum {
                 return 9;
             case MONITOR_FILE_EXPIRE:
                 return 10;
+            case DELETE_FROM_FILE_ACK:
+                return 11;
+            case LIST_DIR_REPLY:
+                return 12;
             case NETWORK_PING:
                 return 15;
             case NETWORK_ACK:
