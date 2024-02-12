@@ -52,6 +52,7 @@ int Client::mainMenu(){
     int reqLength;
     char reqBuffer[1024];
     char replyBuffer[1024];
+    int requestID = 1;
 
     while (choice != 4){
         cout << "\n===== Remote File Access System =====\n";
@@ -67,21 +68,19 @@ int Client::mainMenu(){
             case 1: {                    // read file
                 cout << "\n----- Read File -----\n";
                 cout << "File path: ";
-                getline(cin >> ws, filePath);
+                getline(cin >> ws, filePath);                               // user input filePath
+                offset = readInt("Read offset (in bytes): ", 0, INT_MAX);   // user input offset
+                numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);// user input numBytes
 
-                offset = readInt("Read offset (in bytes): ", 0, INT_MAX);
-                numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);
-
-                reqLength = RequestHandler::createReadRequest(filePath, offset, numBytes, reqBuffer);
-                cout << "\nSize: " << reqLength << endl;
+                // create request and send
+                reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);
+                requestID++;
                 
-                udpClient.send(reqBuffer, reqLength);
-                
+                udpClient.send(reqBuffer, reqLength);   // send request
 
-                cout << endl;
-
-                udpClient.recv(replyBuffer);
-                cout << "Reply from server: " << replyBuffer << endl;
+                // receive reply and handle
+                udpClient.recv(replyBuffer);            // receive reply
+                ReplyHandler::handleReply(replyBuffer); // handle reply
                 break;
             }
             case 2:                     // write to file
