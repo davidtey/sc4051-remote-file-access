@@ -13,6 +13,11 @@ int ReplyHandler::handleReply(char *b){
         case READ_FILE_REPLY:
             ReplyHandler::handleReadFileReply(b);
             return 1;
+
+        case INSERTION_ACK:
+            ReplyHandler::handleInsertAck(b);
+            return 1;
+
         case ERROR_REPLY:
             ReplyHandler::handleErrorReply(b);
             return 0;
@@ -28,6 +33,11 @@ int ReplyHandler::handleReadFileReply(char *b){
 
     cout << "File Content: \n" << fileContent << endl;
 
+    return 1;
+}
+
+int ReplyHandler::handleInsertAck(char *b){
+    cout << "String has successfully been inserted!" << endl;
     return 1;
 }
 

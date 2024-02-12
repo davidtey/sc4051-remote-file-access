@@ -10,6 +10,7 @@ using namespace std;
 namespace ReplyHandler{
     int handleReply(char *b);
     int handleReadFileReply(char *b);
+    int handleInsertAck(char *b);
     int handleErrorReply(char *b);
 }
 
