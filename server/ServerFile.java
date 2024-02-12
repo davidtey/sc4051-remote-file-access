@@ -24,18 +24,24 @@ public class ServerFile {
         }
     }
 
-    public byte[] readFile(int offset, int numBytes) throws IOException{
+    public byte[] readFile(int offset, int numBytes) throws OutOfFileRangeException{
         int outLength = (int) Math.min(file.length() - offset, numBytes);
         if (outLength <= 0){
-            throw new IOException();
+            String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + file.length();
+            throw new OutOfFileRangeException(errorString);
         }
 
-        byte[] out = new byte[outLength];
-        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
-        randomAccessFile.skipBytes(offset);
-        randomAccessFile.read(out, 0, outLength);
-        randomAccessFile.close();
-        return out;
+        try{
+            byte[] out = new byte[outLength];
+            RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
+            randomAccessFile.skipBytes(offset);
+            randomAccessFile.read(out, 0, outLength);
+            randomAccessFile.close();
+            return out;
+        }
+        catch (IOException e){
+            return null;
+        }
     }
 
     public byte[] readAll(){
@@ -51,7 +57,12 @@ public class ServerFile {
         return out;
     }
 
-    public void write(byte[] in, int offset){
+    public void write(byte[] in, int offset) throws OutOfFileRangeException{
+        if (file.length() - offset < 0){
+            String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + file.length();
+            throw new OutOfFileRangeException(errorString);
+        }
+
         try{
             FileInputStream fileInputStream = new FileInputStream(file);
             byte[] before = new byte[offset];
