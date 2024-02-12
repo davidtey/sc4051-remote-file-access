@@ -11,6 +11,7 @@ namespace ReplyHandler{
     int handleReply(char *b);
     int handleReadFileReply(char *b);
     int handleInsertAck(char *b);
+    int handleMonitorFileAck(char *b);
     int handleErrorReply(char *b);
 }
 
