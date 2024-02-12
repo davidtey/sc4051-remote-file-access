@@ -8,9 +8,12 @@ public enum HandlerNum {
     RESERVED_FILE_REQUEST2,     // 5
     READ_FILE_REPLY,            // 6
     INSERTION_ACK,              // 7
-    NETWORK_PING,               // 8
-    NETWORK_ACK,                // 9
-    ERROR_REPLY;              // 10
+    MONITOR_FILE_ACK,           // 8
+    MONITOR_FILE_UPDATE,        // 9
+    MONITOR_FILE_EXIT,          // 10
+    NETWORK_PING,               // 15
+    NETWORK_ACK,                // 16
+    ERROR_REPLY;                // 17
 
     public static HandlerNum fromInt(int x){
         switch(x){
@@ -29,10 +32,16 @@ public enum HandlerNum {
             case 7:
                 return INSERTION_ACK;
             case 8:
-                return NETWORK_PING;
+                return MONITOR_FILE_ACK;
             case 9:
-                return NETWORK_ACK;
+                return MONITOR_FILE_UPDATE;
             case 10:
+                return MONITOR_FILE_EXIT;
+            case 15:
+                return NETWORK_PING;
+            case 16:
+                return NETWORK_ACK;
+            case 17:
                 return ERROR_REPLY;
         }
         return null;
@@ -54,15 +63,19 @@ public enum HandlerNum {
                 return 6;
             case INSERTION_ACK:
                 return 7;
-            case NETWORK_PING:
+            case MONITOR_FILE_ACK:
                 return 8;
-            case NETWORK_ACK:
+            case MONITOR_FILE_UPDATE:
                 return 9;
-            case ERROR_REPLY:
+            case MONITOR_FILE_EXIT:
                 return 10;
+            case NETWORK_PING:
+                return 15;
+            case NETWORK_ACK:
+                return 16;
+            case ERROR_REPLY:
+                return 17;
         }
         return 0;
     }
-
-
 }
