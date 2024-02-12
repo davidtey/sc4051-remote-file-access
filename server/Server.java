@@ -20,6 +20,7 @@ public class Server{
         while (true){
             // await request
             request = udpServer.receive();
+            System.out.println("Received bytes: " + Utils.bytesToHex(request.getData()));
 
             // handle request
             RequestHandler requestHandler = Utils.handleIncomingRequest(request);
@@ -31,7 +32,7 @@ public class Server{
 
             // send reply
             System.out.println(new String(requestHandler.reply, StandardCharsets.UTF_8));
-            System.out.println(Utils.bytesToHex(requestHandler.reply));
+            System.out.println("Sending Bytes: " + Utils.bytesToHex(requestHandler.reply));
             udpServer.send(requestHandler.reply, requestHandler.reply.length, 
             requestHandler.clientAddr, requestHandler.clientPort); // reply to client
         }
