@@ -5,28 +5,36 @@ using namespace std;
 namespace ReplyHandler{
 
 }
-int ReplyHandler::handleReply(char *b){
+HandlerNum ReplyHandler::handleReply(char *b){
     char *cur = b;
     HandlerNum replyType = static_cast<HandlerNum>(utils::unmarshalInt(cur));
 
     switch(replyType){
         case READ_FILE_REPLY:
             ReplyHandler::handleReadFileReply(b);
-            return 1;
+            return replyType;
 
         case INSERTION_ACK:
             ReplyHandler::handleInsertAck(b);
-            return 1;
+            return replyType;
 
         case MONITOR_FILE_ACK:
             ReplyHandler::handleMonitorFileAck(b);
-            return 1;
+            return replyType;
+
+        case MONITOR_FILE_UPDATE:
+            ReplyHandler::handleMonitorUpdate(b);
+            return replyType;
+
+        case MONITOR_FILE_EXPIRE:
+            ReplyHandler::handleMonitorExpire(b);
+            return replyType;
 
         case ERROR_REPLY:
             ReplyHandler::handleErrorReply(b);
-            return 0;
+            return replyType;
     }
-    return 1;
+    return UNKNOWN_REPLY;
 }
 
 int ReplyHandler::handleReadFileReply(char *b){
@@ -47,6 +55,35 @@ int ReplyHandler::handleInsertAck(char *b){
 
 int ReplyHandler::handleMonitorFileAck(char *b){
     cout << "Successfully registered!" << endl;
+    return 1;
+}
+
+int ReplyHandler::handleMonitorUpdate(char *b){
+    char *cur = b + 4;
+    int filePathLength = utils::unmarshalInt(cur);
+    cur += 4;
+    string filePath = utils::unmarshalString(cur, filePathLength);
+    cur += filePathLength;
+
+    int fileLength = utils::unmarshalInt(cur);
+    cur += 4;
+    string fileContent = utils::unmarshalString(cur, fileLength);
+
+    cout << filePath << " has been updated. " << endl;
+    cout << "New file content: " << endl;
+    cout << fileContent << endl;
+
+    return 1;
+}
+
+int ReplyHandler::handleMonitorExpire(char *b){
+    char *cur = b + 4;
+    int filePathLength = utils::unmarshalInt(cur);
+    cur += 4;
+    string filePath = utils::unmarshalString(cur, filePathLength);
+
+    cout << "Monitoring request for " << filePath << " has expired." << endl;
+
     return 1;
 }
 
