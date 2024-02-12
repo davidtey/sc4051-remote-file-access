@@ -27,6 +27,12 @@ public final class Utils {
         else if (requestType == HandlerNum.MONITOR_FILE_REQUEST){
             requestHandler = new MonitorRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
+        else if (requestType == HandlerNum.DELETE_FROM_FILE_REQUEST){
+            requestHandler = new DeleteFromFileRequestHandler(request.getAddress(), request.getPort(), requestID, b);
+        }
+        else if (requestType == HandlerNum.LIST_DIR_REQUEST){
+            requestHandler = new ListDirRequestHandler(request.getAddress(), request.getPort(), requestID, b);
+        }
         else{
             return null;
         }
