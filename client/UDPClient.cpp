@@ -1,4 +1,5 @@
 #include "UDPClient.h"
+#include <iomanip>
 
 using namespace std;
 
@@ -33,15 +34,17 @@ int UDPClient::connectServer(string ip, int port){
 }
 
 int UDPClient::send(const char *msg, int msgLen){
-    cout << "Sending to server: " << endl;
-    cout << "MsgLen = " << msgLen << endl;
+
+    cout << "Sending to server: ";
 
     for(int i=0; i<msgLen; i++){
         if (i % 4 == 0){
             cout << " ";
         }
-        cout << std::hex << (int)msg[i];
+        cout << hex << setfill('0') << (int)msg[i];
     }
+    cout << endl;
+
     
     if (sendto(sockfd, msg, msgLen, 0, 
     (const struct sockaddr *) &servaddr, sizeof(servaddr)) < 0){
@@ -54,6 +57,15 @@ int UDPClient::send(const char *msg, int msgLen){
 int UDPClient::recv(char *buffer){
     n = recvfrom(sockfd, (char *)buffer, 1024, 
         0, (struct sockaddr *) &servaddr, &servaddrLen);
+
+    cout << "Reply from server: ";
+    for(int i=0; i<n; i++){
+        if (i % 4 == 0){
+            cout << " ";
+        }
+        cout << hex << setfill('0') << (int)buffer[i];
+    }
+    cout << endl;
     
     if (n < 0){
         cout << "Client failed to receive message." << endl;
