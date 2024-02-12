@@ -8,10 +8,12 @@
 using namespace std;
 
 namespace ReplyHandler{
-    int handleReply(char *b);
+    HandlerNum handleReply(char *b);
     int handleReadFileReply(char *b);
     int handleInsertAck(char *b);
     int handleMonitorFileAck(char *b);
+    int handleMonitorUpdate(char *b);
+    int handleMonitorExpire(char *b);
     int handleErrorReply(char *b);
 }
 
