@@ -24,8 +24,11 @@ public final class Utils {
         else if (requestType == HandlerNum.WRITE_FILE_REQUEST){ 
             requestHandler = new WriteRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
+        else if (requestType == HandlerNum.MONITOR_FILE_REQUEST){
+            requestHandler = new MonitorRequestHandler(request.getAddress(), request.getPort(), requestID, b); // to remove
+        }
         else{
-            requestHandler = new ReadRequestHandler(request.getAddress(), request.getPort(), requestID, b); // to remove
+            return null;
         }
 
         return requestHandler;
