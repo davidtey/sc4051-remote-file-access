@@ -48,19 +48,18 @@ public class ReadRequestHandler extends RequestHandler {
             catch (OutOfFileRangeException e){
                 String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + 
                 serverFile.getFile().length();
-
+    
                 reply = new byte[errorString.length() + 8];
                 Utils.marshalErrorString(reply, errorString);
             }
-            catch (IOException e){
-                e.printStackTrace();
-            }
-
         }
         catch (FileNotFoundException e){
             String errorString = "File at " + filePath + " could not be found.";
             reply = new byte[errorString.length() + 8];
             Utils.marshalErrorString(reply, errorString);
+        }
+        catch (IOException e){
+            e.printStackTrace();
         }
     }
 
