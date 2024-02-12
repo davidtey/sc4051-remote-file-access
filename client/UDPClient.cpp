@@ -41,7 +41,7 @@ int UDPClient::send(const char *msg, int msgLen){
         if (i % 4 == 0){
             cout << " ";
         }
-        cout << hex << setfill('0') << (int)msg[i];
+        cout << hex << setfill('0') << setw(2) << (int)msg[i];
     }
     cout << endl;
 
@@ -63,7 +63,7 @@ int UDPClient::recv(char *buffer){
         if (i % 4 == 0){
             cout << " ";
         }
-        cout << hex << setfill('0') << (int)buffer[i];
+        cout << hex << setfill('0') << setw(2) << (int)buffer[i];
     }
     cout << endl;
     
