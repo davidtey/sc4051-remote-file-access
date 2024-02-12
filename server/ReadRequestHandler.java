@@ -33,13 +33,13 @@ public class ReadRequestHandler extends RequestHandler {
         try{
             ServerFile serverFile = new ServerFile(filePath);
             try{
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 byte[] fileData = serverFile.readFile(offset, numBytes);
                 byte[] header = new byte[8];
                 Utils.marshalInt(header, HandlerNum.toInt(HandlerNum.READ_FILE_REPLY), 0);  // add handler number to reply message
 
                 Utils.marshalInt(header, fileData.length, 4);
 
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 outputStream.write(header);
                 outputStream.write(fileData);
 
@@ -53,7 +53,7 @@ public class ReadRequestHandler extends RequestHandler {
                 Utils.marshalErrorString(reply, errorString);
             }
             catch (IOException e){
-                return;
+                e.printStackTrace();
             }
 
         }
