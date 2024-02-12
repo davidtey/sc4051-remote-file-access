@@ -10,6 +10,7 @@ int Client::connectMenu(){
     bool connected = false;
     string serverIP;
     int serverPort;
+    int freshnessInterval;
 
     while (!connected){
         cout << "\n===== Remote File Access System Client =====\n";
@@ -48,13 +49,15 @@ int Client::invocationMenu(){
 int Client::mainMenu(){
     int choice = 0;
 
-    while (choice != 4){
-        cout << "\n===== Remote File Access System =====\n";
-        cout << "1. Read file\n";
-        cout << "2. Write to file\n";
-        cout << "3. Monitor file updates\n";
-        cout << "4. Quit\n";
-        choice = readInt("Action: ", 1, 4);
+    while (choice != 6){
+        cout << "\n===== Remote File Access System =====" << endl;
+        cout << "1. Read file" << endl;
+        cout << "2. Write to file" << endl;
+        cout << "3. Monitor file updates" << endl;
+        cout << "4. Delete from file" << endl;
+        cout << "5. List Directory" << endl;
+        cout << "6. Quit" << endl;
+        choice = readInt("Action: ", 1, 6);
 
         offset, numBytes, monitorInterval = -1;
 
@@ -71,19 +74,27 @@ int Client::mainMenu(){
                 monitorFileMenu();
                 break;
 
-            case 4:                     // quit
+            case 4:
+                deleteFromFileMenu();   // delete from file
+                break;
+            
+            case 5:
+                listDirMenu();          // list directory 
+                break;
+
+            case 6:                     // quit
                 cout << "Closing program...\n";
                 return 1;
             
             default:
-                cout << "Please enter integer from 1 to 4!\n";
+                cout << "Please enter integer from 1 to 6!\n";
         }
     }
     return 1;
 }
 
 int Client::readFileMenu(){
-    cout << "\n----- Read File -----\n";
+    cout << "\n----- Read File -----" << endl;
     cout << "File path: ";
     getline(cin >> ws, filePath);                               // user input filePath
     offset = readInt("Read offset (in bytes): ", 0, INT_MAX);   // user input offset
@@ -102,7 +113,7 @@ int Client::readFileMenu(){
 }
 
 int Client::writeFileMenu(){
-    cout << "\n----- Write to File -----\n";
+    cout << "\n----- Write to File -----" << endl;;
     cout << "File path: ";
     getline(cin >> ws, filePath);                               // user input filePath
     offset = readInt("Write offset (in bytes): ", 0, INT_MAX);  // user input offset
@@ -123,7 +134,7 @@ int Client::writeFileMenu(){
 }
 
 int Client::monitorFileMenu(){
-    cout << "\n----- Monitor File -----\n";
+    cout << "\n----- Monitor File -----" << endl;
     cout << "File path: ";
     getline(cin >> ws, filePath);                                       // user input filePath
     monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX); // user input monitorInterval
@@ -144,6 +155,44 @@ int Client::monitorFileMenu(){
             replyType = ReplyHandler::handleReply(replyBuffer); // handle reply
         }
     }
+    
+    requestID++;
+    return 1;
+}
+
+int Client::deleteFromFileMenu(){
+    cout << "\n----- Delete from File -----" << endl;
+    cout << "File path: ";
+    getline(cin >> ws, filePath);                               // user input filePath
+    offset = readInt("Bytes offset (in bytes): ", 0, INT_MAX);   // user input offset
+    numBytes = readInt("Number of bytes to delete: ", 0, INT_MAX);// user input numBytes
+
+    // create request and send
+    reqLength = RequestHandler::createDeleteFromFileRequest(requestID, filePath, offset, numBytes, reqBuffer);    //create request
+    
+    udpClient.send(reqBuffer, reqLength);   // send request
+
+    // receive reply and handle
+    udpClient.recv(replyBuffer);            // receive reply
+    ReplyHandler::handleReply(replyBuffer); // handle reply
+    
+    requestID++;
+    return 1;
+}
+
+int Client::listDirMenu(){
+    cout << "\n----- Read File -----" << endl;
+    cout << "Directory path ('.' for root): ";
+    getline(cin >> ws, filePath);                               // user input filePath
+
+    // create request and send
+    reqLength = RequestHandler::createListDirRequest(requestID, filePath, reqBuffer);    //create request
+
+    udpClient.send(reqBuffer, reqLength);   // send request
+
+    // receive reply and handle
+    udpClient.recv(replyBuffer);            // receive reply
+    ReplyHandler::handleReply(replyBuffer); // handle reply
     
     requestID++;
     return 1;
