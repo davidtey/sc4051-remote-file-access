@@ -88,3 +88,45 @@ int RequestHandler::createMonitorRequest(int requestID, string filePath, int mon
 
     return cur - b;
 }
+
+int RequestHandler::createDeleteFromFileRequest(int requestID, string filePath, int offset, int numBytes, char *b){
+    char *cur = b; // index increment
+
+    utils::marshalInt(HandlerNum::DELETE_FROM_FILE_REQUEST, cur); // insert handler number into request message
+    cur += 4;   // increment by 4 bytes
+
+    utils::marshalInt(requestID, cur);              // insert request ID
+    cur += 4;    // increment by 4 bytes
+
+    utils::marshalInt(filePath.length(), cur);      // insert filePath length into request message
+    cur += 4;   // increment by 4 bytes
+
+    utils::marshalString(filePath, cur);            // insert filePath into request message
+    cur += filePath.length();   // increment by length of filePath
+
+    utils::marshalInt(offset, cur);                 // insert offset into request message
+    cur += 4;    // increment by 4 bytes
+
+    utils::marshalInt(numBytes, cur);               // insert numBytes into request message
+    cur += 4;    // increment by 4 bytes
+
+    return (int) (cur - b);
+}
+
+int RequestHandler::createListDirRequest(int requestID, string filePath, char *b){
+    char *cur = b; // index increment
+
+    utils::marshalInt(HandlerNum::LIST_DIR_REQUEST, cur); // insert handler number into request message
+    cur += 4;   // increment by 4 bytes
+
+    utils::marshalInt(requestID, cur);              // insert request ID
+    cur += 4;    // increment by 4 bytes
+
+    utils::marshalInt(filePath.length(), cur);      // insert filePath length into request message
+    cur += 4;   // increment by 4 bytes
+
+    utils::marshalString(filePath, cur);            // insert filePath into request message
+    cur += filePath.length();   // increment by length of filePath
+
+    return (int) (cur - b);
+}
