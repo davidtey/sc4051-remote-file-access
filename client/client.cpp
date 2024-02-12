@@ -47,12 +47,6 @@ int Client::invocationMenu(){
 */
 int Client::mainMenu(){
     int choice = 0;
-    string filePath, insertString;
-    int offset, numBytes, monitorInterval;
-    int reqLength;
-    char reqBuffer[1024];
-    char replyBuffer[1024];
-    int requestID = 1;
 
     while (choice != 4){
         cout << "\n===== Remote File Access System =====\n";
@@ -66,47 +60,15 @@ int Client::mainMenu(){
 
         switch (choice){
             case 1: {                    // read file
-                cout << "\n----- Read File -----\n";
-                cout << "File path: ";
-                getline(cin >> ws, filePath);                               // user input filePath
-                offset = readInt("Read offset (in bytes): ", 0, INT_MAX);   // user input offset
-                numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);// user input numBytes
-
-                // create request and send
-                reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);    //create request
-                requestID++;
-                
-                udpClient.send(reqBuffer, reqLength);   // send request
-
-                // receive reply and handle
-                udpClient.recv(replyBuffer);            // receive reply
-                ReplyHandler::handleReply(replyBuffer); // handle reply
+                readFileMenu();
                 break;
             }
             case 2:                     // write to file
-                cout << "\n----- Write to File -----\n";
-                cout << "File path: ";
-                getline(cin >> ws, filePath);                               // user input filePath
-                offset = readInt("Write offset (in bytes): ", 0, INT_MAX);  // user input offset
-                cout << "Insert string: ";
-                getline(cin >> ws, insertString);                           // user input inputString
-
-                // create request and send
-                reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);   // create request
-                requestID++;
-
-                udpClient.send(reqBuffer, reqLength);   // send request
-
-                // receive reply and handle
-                udpClient.recv(replyBuffer);            // receive reply
-                ReplyHandler::handleReply(replyBuffer); // handle reply
+                writeFileMenu();
                 break;
 
             case 3:                     // monitor file
-                cout << "\n----- Monitor File -----\n";
-                cout << "File path: ";
-                getline(cin >> ws, filePath);
-                monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX);
+                monitorFileMenu();
                 break;
 
             case 4:                     // quit
@@ -117,6 +79,65 @@ int Client::mainMenu(){
                 cout << "Please enter integer from 1 to 4!\n";
         }
     }
+    return 1;
+}
+
+int Client::readFileMenu(){
+    cout << "\n----- Read File -----\n";
+    cout << "File path: ";
+    getline(cin >> ws, filePath);                               // user input filePath
+    offset = readInt("Read offset (in bytes): ", 0, INT_MAX);   // user input offset
+    numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);// user input numBytes
+
+    // create request and send
+    reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);    //create request
+    
+    udpClient.send(reqBuffer, reqLength);   // send request
+
+    // receive reply and handle
+    udpClient.recv(replyBuffer);            // receive reply
+    ReplyHandler::handleReply(replyBuffer); // handle reply
+    requestID++;
+    return 1;
+}
+
+int Client::writeFileMenu(){
+    cout << "\n----- Write to File -----\n";
+    cout << "File path: ";
+    getline(cin >> ws, filePath);                               // user input filePath
+    offset = readInt("Write offset (in bytes): ", 0, INT_MAX);  // user input offset
+    cout << "Insert string: ";
+    getline(cin >> ws, insertString);                           // user input inputString
+
+    // create request and send
+    reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);   // create request
+
+    udpClient.send(reqBuffer, reqLength);   // send request
+
+    // receive reply and handle
+    udpClient.recv(replyBuffer);            // receive reply
+    ReplyHandler::handleReply(replyBuffer); // handle reply
+
+    requestID++;
+    return 1;
+}
+
+int Client::monitorFileMenu(){
+    cout << "\n----- Monitor File -----\n";
+    cout << "File path: ";
+    getline(cin >> ws, filePath);                                       // user input filePath
+    monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX); // user input monitorInterval
+
+    // create request and send
+    reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);   // create request
+    
+    udpClient.send(reqBuffer, reqLength);   // send request
+
+    // receive reply and handle
+    udpClient.recv(replyBuffer);            // receive reply
+    ReplyHandler::handleReply(replyBuffer); // handle reply
+
+    requestID++;
     return 1;
 }
 
@@ -153,6 +174,7 @@ int Client::readInt(string prompt, int min, int max){
 */ 
 Client::Client(){
     connectMenu();
+    requestID = 1;
 }
 
 /* Start client process
