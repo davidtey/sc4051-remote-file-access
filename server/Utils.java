@@ -18,14 +18,14 @@ public final class Utils {
         System.out.println("requestID: " + requestID);
         RequestHandler requestHandler;
 
-        if (requestType == HandlerNum.READ_FILE_REPLY){
+        if (requestType == HandlerNum.READ_FILE_REQUEST){
             requestHandler = new ReadRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
         else if (requestType == HandlerNum.WRITE_FILE_REQUEST){ 
             requestHandler = new WriteRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
         else if (requestType == HandlerNum.MONITOR_FILE_REQUEST){
-            requestHandler = new MonitorRequestHandler(request.getAddress(), request.getPort(), requestID, b); // to remove
+            requestHandler = new MonitorRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
         else{
             return null;
@@ -51,7 +51,6 @@ public final class Utils {
             b[start + 2] = (byte) (x >> Byte.SIZE);   
             b[start + 3] = (byte) x;
         }
-        
     }
 
     /* Marshal long int
