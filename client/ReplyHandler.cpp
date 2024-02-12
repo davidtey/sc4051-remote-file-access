@@ -29,6 +29,14 @@ HandlerNum ReplyHandler::handleReply(char *b){
         case MONITOR_FILE_EXPIRE:
             ReplyHandler::handleMonitorExpire(b);
             return replyType;
+        
+        case DELETE_FROM_FILE_ACK:
+            ReplyHandler::handleDeleteFromFileAck(b);
+            return replyType;
+        
+        case LIST_DIR_REPLY:
+            ReplyHandler::handleListDirReply(b);
+            return replyType;
 
         case ERROR_REPLY:
             ReplyHandler::handleErrorReply(b);
@@ -83,6 +91,22 @@ int ReplyHandler::handleMonitorExpire(char *b){
     string filePath = utils::unmarshalString(cur, filePathLength);
 
     cout << "Monitoring request for " << filePath << " has expired." << endl;
+
+    return 1;
+}
+
+int ReplyHandler::handleDeleteFromFileAck(char *b){
+    cout << "Successfully deleted from file!" << endl;
+    return 1;
+}
+
+int ReplyHandler::handleListDirReply(char *b){
+    char *cur = b + 4;
+    int fileLength = utils::unmarshalInt(cur);
+    cur += 4;
+    string fileContent = utils::unmarshalString(cur, fileLength);
+
+    cout << "Folder/File Content: \n" << fileContent << endl;
 
     return 1;
 }
