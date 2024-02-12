@@ -129,7 +129,7 @@ int Client::monitorFileMenu(){
     monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX); // user input monitorInterval
 
     // create request and send
-    reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);   // create request
+    reqLength = RequestHandler::createMonitorRequest(requestID, filePath, monitorInterval, reqBuffer);   // create request
     
     udpClient.send(reqBuffer, reqLength);   // send request
 
