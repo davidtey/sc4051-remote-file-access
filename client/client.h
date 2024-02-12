@@ -26,6 +26,8 @@ class Client{
         int readFileMenu();
         int writeFileMenu();
         int monitorFileMenu();
+        int deleteFromFileMenu();
+        int listDirMenu();
         int readInt(string prompt, int min, int max);
     
     public:
