@@ -73,7 +73,7 @@ int Client::mainMenu(){
                 numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);// user input numBytes
 
                 // create request and send
-                reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);
+                reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);    //create request
                 requestID++;
                 
                 udpClient.send(reqBuffer, reqLength);   // send request
@@ -86,12 +86,20 @@ int Client::mainMenu(){
             case 2:                     // write to file
                 cout << "\n----- Write to File -----\n";
                 cout << "File path: ";
-                getline(cin >> ws, filePath);
-
-                offset = readInt("Write offset (in bytes): ", 0, INT_MAX);
-
+                getline(cin >> ws, filePath);                               // user input filePath
+                offset = readInt("Write offset (in bytes): ", 0, INT_MAX);  // user input offset
                 cout << "Insert string: ";
-                getline(cin >> ws, insertString);
+                getline(cin >> ws, insertString);                           // user input inputString
+
+                // create request and send
+                reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);   // create request
+                requestID++;
+
+                udpClient.send(reqBuffer, reqLength);   // send request
+
+                // receive reply and handle
+                udpClient.recv(replyBuffer);            // receive reply
+                ReplyHandler::handleReply(replyBuffer); // handle reply
                 break;
 
             case 3:                     // monitor file
