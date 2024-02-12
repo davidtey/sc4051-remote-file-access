@@ -4,34 +4,48 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
 import java.io.IOException;
+import java.lang.Math;
 
 public class ServerFile {
+    private static final String databasePath = new File("").getAbsolutePath().replace('\\', '/') 
+                                                                                        + "/server/database/";
     private String path;
     private File file;
 
-    public ServerFile(String p){
+    public ServerFile(String p) throws FileNotFoundException{
         path = p;
-        try{
-            file = new File(p);
-            if (!file.exists()){
-                throw new FileNotFoundException();
-            }
+
+        file = new File(databasePath + path);
+        if (!file.exists()){
+            System.out.println("File at path " + path + " not found.");
+            throw new FileNotFoundException();
         }
-        catch (FileNotFoundException e){
-            System.out.println("File " + path + " not found.");
-            e.printStackTrace();
-        }
-        
     }
 
-    public byte[] read(){
+    public byte[] readFile(int offset, int numBytes) throws IOException{
+        int outLength = (int) Math.min(file.length() - offset, numBytes);
+        if (outLength <= 0){
+            throw new IOException();
+        }
+
+        byte[] out = new byte[outLength];
+        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
+        randomAccessFile.skipBytes(offset);
+        randomAccessFile.read(out, 0, outLength);
+        randomAccessFile.close();
+        return out;
+    }
+
+    public byte[] readAll(){
         byte[] out = new byte[(int) file.length()];
         try(FileInputStream fileInputStream = new FileInputStream(file)){
             fileInputStream.read(out);
         }
 
         catch (IOException e){
+            e.printStackTrace();
         }
 
         return out;
@@ -59,9 +73,13 @@ public class ServerFile {
             System.out.println("Successfully wrote to the file " + path);
         }
         catch (IOException e){
-            System.err.println("File " + path + " not found.");
+            System.err.println("File at " + path + " not found.");
             e.printStackTrace();
         }
+    }
+
+    public File getFile(){
+        return file;
     }
 }
 
