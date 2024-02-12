@@ -25,11 +25,11 @@ public class UDPServer {
      * returns DatagramPacket containing message (byte array), length, address and port
      */
     public DatagramPacket receive(){
-        
         try{
             byte[] buffer = new byte[BUFFER_SIZE];
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
             socket.receive(request);
+            System.out.println("Received bytes: " + Utils.bytesToHex(request.getData()));
             return request;
         }
         catch(IOException e){
@@ -43,6 +43,7 @@ public class UDPServer {
      * Requires message (byte array), length, address and port
      */
     public void send(byte[] buf, int length, InetAddress address, int port){
+        System.out.println("Sending Bytes: " + Utils.bytesToHex(buf));
         DatagramPacket reply = new DatagramPacket(buf, length, address, port);
         try{
             socket.send(reply);
