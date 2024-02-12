@@ -9,9 +9,12 @@ enum HandlerNum {
     RESERVED_FILE_REQUEST2 = 5,
     READ_FILE_REPLY = 6,
     INSERTION_ACK = 7,
-    NETWORK_PING = 8,
-    NETWORK_ACK = 9,
-    ERROR_REPLY = 10
+    MONITOR_FILE_ACK = 8,
+    MONITOR_FILE_UPDATE = 9,
+    MONITOR_FILE_EXIT = 10,
+    NETWORK_PING = 15,
+    NETWORK_ACK = 16,
+    ERROR_REPLY = 17
 };
 
 #endif
