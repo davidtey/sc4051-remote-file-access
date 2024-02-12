@@ -14,6 +14,8 @@ namespace ReplyHandler{
     int handleMonitorFileAck(char *b);
     int handleMonitorUpdate(char *b);
     int handleMonitorExpire(char *b);
+    int handleDeleteFromFileAck(char *b);
+    int handleListDirReply(char *b);
     int handleErrorReply(char *b);
 }
 
