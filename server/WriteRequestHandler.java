@@ -42,6 +42,7 @@ public class WriteRequestHandler extends RequestHandler{
                 serverFile.write(insertString.getBytes(), offset);
                 reply = new byte[4];
                 Utils.marshalInt(reply, HandlerNum.toInt(HandlerNum.INSERTION_ACK), 0);
+                MonitorRequestHandler.notifyUpdate(filePath, serverFile);
             }
             catch (OutOfFileRangeException e){
                 String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + 
