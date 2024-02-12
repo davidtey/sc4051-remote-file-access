@@ -133,10 +133,18 @@ int Client::monitorFileMenu(){
     
     udpClient.send(reqBuffer, reqLength);   // send request
 
-    // receive reply and handle
-    udpClient.recv(replyBuffer);            // receive reply
-    ReplyHandler::handleReply(replyBuffer); // handle reply
+    // receive reply and handle (monitor until expired)
 
+    udpClient.recv(replyBuffer);            // receive reply
+    HandlerNum replyType = ReplyHandler::handleReply(replyBuffer); // handle reply
+
+    if (replyType == HandlerNum::MONITOR_FILE_ACK){     // successfully registered
+        while (replyType != HandlerNum::MONITOR_FILE_EXPIRE){
+            udpClient.recv(replyBuffer);            // receive reply
+            replyType = ReplyHandler::handleReply(replyBuffer); // handle reply
+        }
+    }
+    
     requestID++;
     return 1;
 }
