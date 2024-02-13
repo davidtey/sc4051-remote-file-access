@@ -2,65 +2,113 @@ package server;
 
 import java.net.InetAddress;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
+/**Write Request Handler Class
+ * <pre>
+ * Handles write requests by unmarshalling request, invoking methods, marshalling reply and returning.
+ * Handles printing of requests and replies onto server console.
+ * </pre>
+ */
 public class WriteRequestHandler extends RequestHandler{
-    String filePath;
-    int offset;
-    String insertString;
+    String filePath;            // request argument: file path
+    int offset;                 // request argument: offset
+    String insertString;        // request argument: insert string
 
+    long serverLastModified;    // return: database file last modified time
+    int fileLength;             // return: database file length
+
+    /**Constructor for WriteRequestHandler class
+     * @param addr client IP address
+     * @param port client port
+     * @param reqID request ID
+     * @param req byte array of incoming request
+     */
     public WriteRequestHandler(InetAddress addr, int port, int reqID, byte[] req){
         super(addr, port, reqID, req);
         requestType = HandlerNum.WRITE_FILE_REQUEST;
     }
 
+    /**Unmarshal write request according to predefined protocol.
+     */
     public void unmarshalRequest(){
-        int cur = 8;   // skip to first argument
-        int filePathLength = Utils.unmarshalInt(request, cur); // get filePath length
-        System.out.println("filePathLength: " + filePathLength);
-        cur += 4;       // increment to start of filePath
-
-        filePath = Utils.unmarshalString(request, cur, filePathLength); // get filePath
-        System.out.println("filePath: " + filePath);
-        cur += filePathLength; // increment to start of offset
-
-        offset = Utils.unmarshalInt(request, cur); // get offset
-        System.out.println("offset: " + offset);
-        cur += 4;   // increment to start of numBytes
-
-        int insertStringLength = Utils.unmarshalInt(request, cur);  // get insertString length
-        System.out.println("insertStringLength: " + insertStringLength);
-        cur += 4;   // increment to start of insertString
-
-        insertString = Utils.unmarshalString(request, cur, insertStringLength);
-        System.out.println("insertString: " + insertString);
+        int filePathLength = Utils.unmarshalInt(request, 8);                                // get filePath length
+        filePath = Utils.unmarshalString(request, 12, filePathLength);                      // get filePath
+        offset = Utils.unmarshalInt(request, filePathLength + 12);                                // get offset
+        int insertStringLength = Utils.unmarshalInt(request, filePathLength + 16);                // get insertString length
+        insertString = Utils.unmarshalString(request, filePathLength + 20, insertStringLength);   // get insertString
     }
 
+    /**Print write request on to server console.
+     */
+    public void printRequest(){
+        System.out.println("[From " + clientAddr + ":" + clientPort + "] Write File Request #" + requestID + " write '" + insertString +
+        "' into " + filePath + " at offset " + offset); 
+    }
+
+    /**Execute write request, invoke methods from Database. todo
+     */
     public void executeRequest(){
         try{
-            ServerFile serverFile = new ServerFile(filePath);
-            try{
-                serverFile.write(insertString.getBytes(), offset);
-                reply = new byte[4];
-                Utils.marshalInt(reply, HandlerNum.toInt(HandlerNum.INSERTION_ACK), 0);
-                MonitorRequestHandler.notifyUpdate(filePath, serverFile);
-            }
-            catch (OutOfFileRangeException e){
-                String errorString = "File offset exceeds the file length. Offset: " + offset + " File length: " + 
-                serverFile.getFile().length();
-    
-                reply = new byte[errorString.length() + 8];
-                Utils.marshalErrorString(reply, errorString);
-            }
+            String fullFilePath = Database.databasePath + filePath;
+            Database.writeToFile(fullFilePath, offset, insertString.getBytes());
+            serverLastModified = Database.getFileLastModified(fullFilePath);
+            fileLength = Database.getFileLength(fullFilePath);
         }
-        catch (FileNotFoundException e){
-            String errorString = "File at " + filePath + " could not be found.";
-            reply = new byte[errorString.length() + 8];
-            Utils.marshalErrorString(reply, errorString);
+        catch (FileNotFoundException e){                                        // handle if file not found
+            errorEncountered = true;
+            errorMessage = "Error encountered! File at " + filePath + " could not be found.";
+            errorMessageLength = errorMessage.length();
+        }
+        catch (OutOfFileRangeException e){                                      // handle if offset exceed file length
+            errorEncountered = true;
+            errorMessage = "Error encountered! File offset exceeds the file length. Offset: " + offset + 
+            " File length: " + Database.getFileLength(filePath);
+            errorMessageLength = errorMessage.length();
+        }
+        catch (IOException e){                                                  // handle IOException
+            errorEncountered = true;
+            errorMessage = e.getMessage();
+            errorMessageLength = errorMessage.length();
         }
     }
 
-    public String toString(){
-        return "\nWrite File Request from " + clientAddr + ":" + clientPort + "\nRequest ID: " + requestID + "\nFile path: " + filePath + 
-        "\nOffset: " + offset + "\nString to insert: " + insertString;
+    /**Marshals write request reply
+     * <pre>
+     * Successful reply:
+     * int (4 bytes): WRITE_FILE_REPLY handler number
+     * long (8 bytes): server file last modified time
+     * int (4 bytes): file length
+     * 
+     * Error reply: 
+     * int (4 bytes): ERROR_REPLY handler number
+     * int (4 bytes): error message length
+     * String (n bytes): error message
+     * </pre>
+     */
+    public void marshalReply(){
+        if (!errorEncountered){     // successful reply
+            reply = new byte[16];
+            Utils.marshalInt(reply, HandlerNum.toInt(HandlerNum.INSERTION_ACK), 0);
+            Utils.marshalLong(reply, serverLastModified, 4);
+            Utils.marshalInt(reply, fileLength, 12);
+        }
+        else{   // error reply
+            reply = new byte[errorMessageLength + 8];
+            Utils.marshalInt(reply, HandlerNum.toInt(HandlerNum.ERROR_REPLY), 0);
+            Utils.marshalInt(reply, errorMessageLength, 4);
+            Utils.marshalString(reply, errorMessage, 8);
+        }
+    }
+
+    /**Print reply on to server console.
+     */
+    public void printReply(){   
+        if (!errorEncountered){     // successful reply
+            System.out.println("[To " + clientAddr + ":" + clientPort + "] " + "INSERTION_ACK");
+        }
+        else{
+            System.err.println("[To " + clientAddr + ":" + clientPort + "] " + errorMessage);
+        }
     }
 }
