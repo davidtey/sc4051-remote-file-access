@@ -2,9 +2,6 @@ package server;
 import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.net.DatagramPacket;
-import java.util.List;
-import java.util.ArrayList;
-import java.nio.charset.StandardCharsets;
 
 /* Server class (main class)
  */
@@ -15,28 +12,14 @@ public class Server{
         invocationMenu();
         DatagramPacket request;
         System.out.println("\n ---------- Request log ----------");
-        List<RequestHandler> requestHistory = new ArrayList<RequestHandler>();
-
 
         while (true){
-            // await request
-            request = udpServer.receive();
-
-            // handle request
-            RequestHandler requestHandler = Utils.handleIncomingRequest(request);
-            requestHandler.unmarshalRequest();
-            requestHistory.add(requestHandler);
-            System.out.println(requestHandler); // print incoming request onto server console
-
-            requestHandler.executeRequest();
-
-            // send reply
-            System.out.println(new String(requestHandler.reply, StandardCharsets.UTF_8));
-            udpServer.send(requestHandler.reply, requestHandler.reply.length, 
-            requestHandler.clientAddr, requestHandler.clientPort); // reply to client
+            request = udpServer.receive();                                                // await request
+            byte[] reply = RequestHandler.handleIncomingRequest(request);                 // handle request
+            udpServer.send(reply, reply.length, request.getAddress(), request.getPort()); // reply to client
         }
-
     }
+
     /* Server invocation menu
      * Allow user to select invocation semantics
      */
