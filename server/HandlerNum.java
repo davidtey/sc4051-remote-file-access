@@ -1,5 +1,10 @@
 package server;
 
+/**HandlerNum Enum
+ * <pre>
+ * Enum for types of requests & replies for identification.
+ * </pre>
+ */
 public enum HandlerNum {
     READ_FILE_REQUEST,          // 1
     WRITE_FILE_REQUEST,         // 2
@@ -13,10 +18,16 @@ public enum HandlerNum {
     MONITOR_FILE_EXPIRE,        // 10
     DELETE_FROM_FILE_ACK,       // 11
     LIST_DIR_REPLY,             // 12
+    GET_FILE_ATTR_REQUEST,      // 13
+    GET_FILE_ATTR_REPLY,        // 14
     NETWORK_PING,               // 15
     NETWORK_ACK,                // 16
     ERROR_REPLY;                // 17
 
+    /**Converts int to HandlerNum
+     * @param x integer
+     * @return HandlerNum Enum
+     */
     public static HandlerNum fromInt(int x){
         switch(x){
             case 1:
@@ -43,6 +54,10 @@ public enum HandlerNum {
                 return DELETE_FROM_FILE_ACK;
             case 12:
                 return LIST_DIR_REPLY;
+            case 13:
+                return GET_FILE_ATTR_REQUEST;
+            case 14:
+                return GET_FILE_ATTR_REPLY;
             case 15:
                 return NETWORK_PING;
             case 16:
@@ -53,6 +68,10 @@ public enum HandlerNum {
         return null;
     }
 
+    /**Converts HandlerNum to int
+     * @param handlerNum HandlerNum Enum
+     * @return integer associated with the HandlerNum
+     */
     public static int toInt(HandlerNum handlerNum){
         switch(handlerNum){
             case READ_FILE_REQUEST:
@@ -79,6 +98,10 @@ public enum HandlerNum {
                 return 11;
             case LIST_DIR_REPLY:
                 return 12;
+            case GET_FILE_ATTR_REQUEST:
+                return 13;
+            case GET_FILE_ATTR_REPLY:
+                return 14;
             case NETWORK_PING:
                 return 15;
             case NETWORK_ACK:
