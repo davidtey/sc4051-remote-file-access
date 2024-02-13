@@ -18,7 +18,7 @@ public class ReadRequestHandler extends RequestHandler {
 
     long serverLastModified;    // return: database file last modified time
     int fileLength;             // return: database file length
-    int fileContentLength;      // return: requested database file content length 
+    int fileContentLength;      // return: requested database file content length
     byte[] fileContent;         // return: database file content
 
     /**Constructor for ReadRequestHandler class
@@ -35,27 +35,27 @@ public class ReadRequestHandler extends RequestHandler {
     /**Unmarshal read request according to predefined protocol.
      */
     public void unmarshalRequest(){
-        int filePathLength = Utils.unmarshalInt(request, 8); // get filePath length
-        filePath = Utils.unmarshalString(request, 12, filePathLength); // get filePath
-        offset = Utils.unmarshalInt(request, filePathLength + 12); // get offset
-        numBytes = Utils.unmarshalInt(request, filePathLength + 16);    // get numBytes
+        int filePathLength = Utils.unmarshalInt(request, 8);              // get filePath length
+        filePath = Utils.unmarshalString(request, 12, filePathLength);    // get filePath
+        offset = Utils.unmarshalInt(request, filePathLength + 12);              // get offset
+        numBytes = Utils.unmarshalInt(request, filePathLength + 16);            // get numBytes
     }
 
     /**Print read request on to server console.
      */
     public void printRequest(){
-        System.out.println("Read File Request from " + clientAddr + ":" + clientPort + "\nRequest ID: " + requestID + "\nFile path: " + 
-        filePath + "\nOffset: " + offset + "\nNumber of bytes to read: " + numBytes); 
+        System.out.println("[From " + clientAddr + ":" + clientPort + "] Read File Request #" + requestID + " from " + 
+        filePath + " with " + offset + " bytes offset " + " for " + numBytes + " bytes."); 
     }
 
     /**Execute read request, invoke methods from Database.
      */
     public void executeRequest(){
         try{
-            filePath = Database.databasePath + filePath;                        // add database path in front of file path
-            serverLastModified = Database.getFileLastModified(filePath);        // get server last modified time
-            fileLength = Database.getFileLength(filePath);                      // get file length
-            fileContent = Database.readFromFile(filePath, offset, numBytes);    // get file content length
+            String fullFilePath = Database.databasePath + filePath;             // add database path in front of file path              
+            serverLastModified = Database.getFileLastModified(fullFilePath);        // get server last modified time
+            fileLength = Database.getFileLength(fullFilePath);                      // get file length
+            fileContent = Database.readFromFile(fullFilePath, offset, numBytes);    // get file content length
             fileContentLength = fileContent.length;                             // get file content
         }
         catch (FileNotFoundException e){                                        // handle if file not found
