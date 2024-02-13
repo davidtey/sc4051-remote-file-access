@@ -54,6 +54,7 @@ public class WriteRequestHandler extends RequestHandler{
             Database.writeToFile(fullFilePath, offset, insertString.getBytes());
             serverLastModified = Database.getFileLastModified(fullFilePath);
             fileLength = Database.getFileLength(fullFilePath);
+            MonitorRequestHandler.notifyUpdate(filePath);
         }
         catch (FileNotFoundException e){                                        // handle if file not found
             errorEncountered = true;
@@ -76,7 +77,7 @@ public class WriteRequestHandler extends RequestHandler{
     /**Marshals write request reply
      * <pre>
      * Successful reply:
-     * int (4 bytes): WRITE_FILE_REPLY handler number
+     * int (4 bytes): INSERTION_ACK handler number
      * long (8 bytes): server file last modified time
      * int (4 bytes): file length
      * 
