@@ -2,15 +2,17 @@ package server;
 import java.net.*;
 import java.io.IOException;
 
-/* UDPServer Class
+/**UDPServer Class
+ * <pre>
  * Handles all UDP communication with UDPClients
+ * </pre>
  */
 public class UDPServer {
-    private DatagramSocket socket;
-    private int port = 2222;
-    private final int BUFFER_SIZE = 1024;
+    private DatagramSocket socket;                // socket object
+    private final int port = 2222;                // always runs on port 2222
+    private final int BUFFER_SIZE = 1024;         // buffer size
 
-    /* UDPServer Constructor
+    /**UDPServer Constructor
      */
     public UDPServer(){
         try{
@@ -21,7 +23,7 @@ public class UDPServer {
         }
     }
 
-    /* Receives next request (Waits for the next request to arrive)
+    /**Receives next request (Waits for the next request to arrive)
      * returns DatagramPacket containing message (byte array), length, address and port
      */
     public DatagramPacket receive(){
@@ -39,8 +41,12 @@ public class UDPServer {
         return null;
     }
 
-    /* Sends reply to client
-     * Requires message (byte array), length, address and port
+    /**Send reply to client
+     * 
+     * @param buf message buffer (byte array)
+     * @param length length of message
+     * @param address client IP address
+     * @param port client port
      */
     public void send(byte[] buf, int length, InetAddress address, int port){
         System.out.println("Sending Bytes: " + Utils.bytesToHex(buf));
