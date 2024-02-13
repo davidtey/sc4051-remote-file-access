@@ -13,7 +13,7 @@ import java.lang.Math;
  * Static methods only.
  */
 public class Database {
-    private static final String databasePath = new File("").getAbsolutePath().replace('\\', '/') 
+    public static final String databasePath = new File("").getAbsolutePath().replace('\\', '/') 
                                                                                         + "/server/database/";              // default path to directory
     /**Reads from file in database
      * @param filePath path of queried file
@@ -29,7 +29,7 @@ public class Database {
             throw new OutOfFileRangeException();
         }
         File file = new File(filePath);
-        RandomAccessFile randomAccessFile = new RandomAccessFile(file, filePath);
+        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         int outLength = (int) Math.min(file.length() - offset, numBytes); // set byte array length to appropriate amount (clip if offset + numBytes exceed file length)
         byte[] out = new byte[outLength];    
         
@@ -154,8 +154,8 @@ public class Database {
      * @return true if offset is within file range
      */
     public static boolean checkOffsetInFileRange(String filePath, int offset){
-        File file = new File(databasePath + filePath);
-        if (file.length() < offset){
+        File file = new File(filePath);
+        if (offset < file.length()){
             return true;
         }
         return false;
@@ -167,7 +167,7 @@ public class Database {
      * @return true if file exists in database
      */
     public static boolean checkFileExists(String filePath){
-        File file = new File(databasePath + filePath);
+        File file = new File(filePath);
         if (file.exists() && file.isFile()){            // if path exists and is a file
             return true;
         }
@@ -180,11 +180,23 @@ public class Database {
      * @return true if specified path is a directory or file
      */
     public static boolean checkPathExists(String filePath){
-        File file = new File(databasePath + filePath);
+        File file = new File(filePath);
         if (file.exists()){                             // if path exists (can be directory/file)
             return true;
         }
         return false;
+    }
+
+    /**Get length of file contents
+     * <pre>
+     * Assumes file exists.
+     * </pre>
+     * @param filePath path of queried file 
+     * @return length of file content
+     */
+    public static int getFileLength(String filePath){
+        File file = new File(filePath);
+        return (int) file.length();
     }
 
     /**Get last modified time of file
