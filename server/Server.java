@@ -3,11 +3,19 @@ import java.util.Scanner;
 import java.util.InputMismatchException;
 import java.net.DatagramPacket;
 
-/* Server class (main class)
+/**Server class
+ * <pre>
+ * Main class with main while loop receiving requests, handling requests and replying clients. Also implements the invocation semantics menu. 
+ * </pre>
  */
 public class Server{
     private static Invocation invocation;
     static UDPServer udpServer = new UDPServer();
+    
+    /** Main loop
+     * 
+     * @param args currently unused
+     */
     public static void main(String[] args){
         invocationMenu();
         DatagramPacket request;
@@ -20,8 +28,7 @@ public class Server{
         }
     }
 
-    /* Server invocation menu
-     * Allow user to select invocation semantics
+    /**Server invocation menu to allow host to select invocation semantics
      */
     private static void invocationMenu(){
         boolean validChoice = false;
