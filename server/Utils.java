@@ -8,37 +8,6 @@ public final class Utils {
      * Returns RequestHandler object for request/reply tracking
      */
     private final static ByteOrder byteOrder = ByteOrder.nativeOrder();
-    
-    public static RequestHandler handleIncomingRequest(DatagramPacket request){
-        byte[] b = request.getData();
-        HandlerNum requestType = HandlerNum.fromInt(Utils.unmarshalInt(b, 0));    // get request type from request
-        System.out.println("requestType: " + requestType);
-
-        int requestID = Utils.unmarshalInt(b, 4);
-        System.out.println("requestID: " + requestID);
-        RequestHandler requestHandler;
-
-        if (requestType == HandlerNum.READ_FILE_REQUEST){
-            requestHandler = new ReadRequestHandler(request.getAddress(), request.getPort(), requestID, b);
-        }
-        else if (requestType == HandlerNum.WRITE_FILE_REQUEST){ 
-            requestHandler = new WriteRequestHandler(request.getAddress(), request.getPort(), requestID, b);
-        }
-        else if (requestType == HandlerNum.MONITOR_FILE_REQUEST){
-            requestHandler = new MonitorRequestHandler(request.getAddress(), request.getPort(), requestID, b);
-        }
-        else if (requestType == HandlerNum.DELETE_FROM_FILE_REQUEST){
-            requestHandler = new DeleteFromFileRequestHandler(request.getAddress(), request.getPort(), requestID, b);
-        }
-        else if (requestType == HandlerNum.LIST_DIR_REQUEST){
-            requestHandler = new ListDirRequestHandler(request.getAddress(), request.getPort(), requestID, b);
-        }
-        else{
-            return null;
-        }
-
-        return requestHandler;
-    }
 
     /* Marshal int
      * Returns byte array
@@ -95,6 +64,17 @@ public final class Utils {
         }
     }
 
+    /**Marshal Bytes
+     * @param b byte array buffer 
+     * @param in input byte array
+     * @param start index to start writing into buffer b
+     */
+    public static void marshalBytes(byte[] b, byte[] in, int start){
+        for (int i=start; i<in.length + start; i++){
+            b[i] = (byte) in[i-start];
+        }
+    }
+
     /* Marshal error string
      * Error string is added into b at index start
      */
@@ -125,6 +105,36 @@ public final class Utils {
             out |= (b[start + 1] & 0xFF) << (Byte.SIZE * 2);
             out |= (b[start + 2] & 0xFF) << (Byte.SIZE * 1);
             out |= (b[start + 3] & 0xFF);
+        }
+        return out;
+    }
+
+    /* Unmarshal 8 bytes into long
+     * Assumes network transmits in big endian
+     * Converts to host endian after
+     */    
+    public static long unmarshalLong(byte[] b, int start){
+        long out;
+        if (byteOrder.toString() == "BIG_ENDIAN"){
+            out = (b[start + 7] << (Byte.SIZE * 7));
+            out |= (b[start + 6] & 0xFF) << (Byte.SIZE * 6);
+            out |= (b[start + 5] & 0xFF) << (Byte.SIZE * 5);
+            out |= (b[start + 4] & 0xFF) << (Byte.SIZE * 4);
+            out |= (b[start + 3] & 0xFF) << (Byte.SIZE * 3);
+            out |= (b[start + 2] & 0xFF) << (Byte.SIZE * 2);
+            out |= (b[start + 1] & 0xFF) << (Byte.SIZE * 1);
+            out |= (b[start] & 0xFF);
+            return out;
+        }
+        else{
+            out = (b[start] << (Byte.SIZE * 7));
+            out |= (b[start + 1] & 0xFF) << (Byte.SIZE * 6);
+            out |= (b[start + 2] & 0xFF) << (Byte.SIZE * 5);
+            out |= (b[start + 3] & 0xFF) << (Byte.SIZE * 4);
+            out |= (b[start + 4] & 0xFF) << (Byte.SIZE * 3);
+            out |= (b[start + 5] & 0xFF) << (Byte.SIZE * 2);
+            out |= (b[start + 6] & 0xFF) << (Byte.SIZE * 1);
+            out |= (b[start + 7] & 0xFF);
         }
         return out;
     }
