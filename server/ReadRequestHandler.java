@@ -52,11 +52,11 @@ public class ReadRequestHandler extends RequestHandler {
      */
     public void executeRequest(){
         try{
-            String fullFilePath = Database.databasePath + filePath;             // add database path in front of file path              
+            String fullFilePath = Database.databasePath + filePath;                 // add database path in front of file path
             serverLastModified = Database.getFileLastModified(fullFilePath);        // get server last modified time
             fileLength = Database.getFileLength(fullFilePath);                      // get file length
             fileContent = Database.readFromFile(fullFilePath, offset, numBytes);    // get file content length
-            fileContentLength = fileContent.length;                             // get file content
+            fileContentLength = fileContent.length;                                 // get file content
         }
         catch (FileNotFoundException e){                                        // handle if file not found
             errorEncountered = true;
