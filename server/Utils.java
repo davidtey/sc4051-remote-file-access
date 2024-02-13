@@ -1,17 +1,25 @@
 package server;
 import java.nio.charset.Charset;
-import java.net.DatagramPacket;
 import java.nio.ByteOrder;
 
+/**Generic utilities class
+ * <pre>
+ * Contains mashalling methods and hexadecimal printing. All methods are static.
+ * </pre>
+ * 
+ */
 public final class Utils {
-    /* Generic request handler, gets request type, creates and calls the appropriate request handler.
-     * Returns RequestHandler object for request/reply tracking
-     */
-    private final static ByteOrder byteOrder = ByteOrder.nativeOrder();
+    private final static ByteOrder byteOrder = ByteOrder.nativeOrder();         // local byte order (big/little endian ordering)
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();   // integer to hex conversion
 
-    /* Marshal int
+    /**Marshal int
+     * <pre>
      * Returns byte array
      * Converts to big endian to transmit over network
+     * </pre>
+     * @param b byte array to store marshalled data
+     * @param x integer to marshal
+     * @param start start index to store marshalled data
      */
     public static void marshalInt(byte[] b, int x, int start){
         if (byteOrder.toString() == "BIG_ENDIAN"){
@@ -28,9 +36,14 @@ public final class Utils {
         }
     }
 
-    /* Marshal long int
+    /**Marshal long int
+     * <pre>
      * Returns byte array
      * Converts to big endian to transmit over network
+     * </pre>
+     * @param b byte array to store marshalled data
+     * @param x long integer to marshal
+     * @param start start index to store marshalled data
      */
     public static void marshalLong (byte[] b, long x, int start){
         if (byteOrder.toString() == "BIG_ENDIAN"){
@@ -55,8 +68,11 @@ public final class Utils {
         }
     }
 
-    /* Marshal string
-     * String is added into b at index start
+    /**Marshal string
+     * 
+     * @param b byte array to store marshalled data
+     * @param s string to marshal
+     * @param start start index to store marshalled data
      */
     public static void marshalString(byte[] b, String s, int start){
         for (int i=start; i<s.length() + start; i++){
@@ -65,32 +81,41 @@ public final class Utils {
     }
 
     /**Marshal Bytes
-     * @param b byte array buffer 
-     * @param in input byte array
-     * @param start index to start writing into buffer b
+     * @param b byte array buffer
+     * @param in input byte array to marshal
+     * @param start start index to store marshalled data
      */
     public static void marshalBytes(byte[] b, byte[] in, int start){
         for (int i=start; i<in.length + start; i++){
             b[i] = (byte) in[i-start];
         }
     }
-
-    /* Marshal error string
-     * Error string is added into b at index start
+    
+    /**Marshal error string
+     * 
+     * @param b byte array buffer
+     * @param s error string to marshal
      */
     public static void marshalErrorString(byte[] b, String s){
-        int cur = 0;
-        marshalInt(b, HandlerNum.toInt(HandlerNum.ERROR_REPLY), cur);     // adds error_handler to start of byte array
-        cur += 4;
-        marshalInt(b, s.length(), cur); // adds error string length to byte array
-        cur += 4;
-        marshalString(b, s, cur);       // adds error string to byte array
+        marshalInt(b, HandlerNum.toInt(HandlerNum.ERROR_REPLY), 0);     // adds error_handler to start of byte array
+        marshalInt(b, s.length(), 4); // adds error string length to byte array
+        marshalString(b, s, 4);       // adds error string to byte array
     }
 
     /* Unmarshal 4 bytes into int
      * Assumes network transmits in big endian
      * Converts to host endian after
-     */    
+     */
+    
+    /**Unmarshal 4 bytes into int
+     * <pre>
+     * Assumes network transmits in big endian
+     * Converts to host endian after
+     * </pre>
+     * @param b byte array buffer
+     * @param start start index to unmarshal
+     * @return unmarshalled integer
+     */
     public static int unmarshalInt(byte[] b, int start){
         int out;
         if (byteOrder.toString() == "BIG_ENDIAN"){
@@ -112,7 +137,17 @@ public final class Utils {
     /* Unmarshal 8 bytes into long
      * Assumes network transmits in big endian
      * Converts to host endian after
-     */    
+     */
+
+    /**Unmarshal 8 bytes into long
+     * <pre>
+     * Assumes network transmits in big endian
+     * Converts to host endian after
+     * </pre>
+     * @param b byte array buffer
+     * @param start start index to unmarshal
+     * @return unmarshalled long integer
+     */
     public static long unmarshalLong(byte[] b, int start){
         long out;
         if (byteOrder.toString() == "BIG_ENDIAN"){
@@ -139,9 +174,15 @@ public final class Utils {
         return out;
     }
 
-    /* Unmarshal bytes to string (assuming UTF-8)
+    /**Unmarshal bytes to string (assuming UTF-8)
+     * <pre>
      * Requires start index and string length
      * Returns string
+     * </pre>
+     * @param b byte array buffer
+     * @param start start index to unmarshal
+     * @param length length of string
+     * @return unmarshalled string
      */
     public static String unmarshalString(byte[] b, int start, int length){
         byte[] c = new byte[length];
@@ -151,7 +192,14 @@ public final class Utils {
         return new String(c, Charset.forName("UTF-8"));
     }
 
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    /**Bytes to Hex String
+     * <pre>
+     * Converts byte array to hex string.
+     * </pre>
+     * 
+     * @param bytes input byte array
+     * @return hex string
+     */
     public static String bytesToHex(byte[] bytes) {
         
         char[] hexChars = new char[bytes.length*2];
