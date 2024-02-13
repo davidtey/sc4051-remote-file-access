@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
  * <pre>
  * Handles monitor requests by unmarshalling request, invoking methods, marshalling reply and returning.
  * Handles printing of requests and replies onto server console.
+ * Contains static methods associated with updating clients and notifying expiry of service.
  * </pre>
  */
 public class MonitorRequestHandler extends RequestHandler{
