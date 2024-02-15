@@ -73,7 +73,6 @@ tuple<string, long long int, int> ReplyHandler::handleReadFileReply(char *b){
  * Returns 1
 */
 int ReplyHandler::handleInsertAck(char *b){
-    cout << "String has successfully been inserted!" << endl;
     return 1;
 }
 
@@ -84,7 +83,6 @@ int ReplyHandler::handleInsertAck(char *b){
  * Returns 1
 */
 int ReplyHandler::handleMonitorFileAck(char *b){
-    cout << "Successfully registered!" << endl;
     return 1;
 }
 
@@ -92,24 +90,27 @@ int ReplyHandler::handleMonitorFileAck(char *b){
  * 
  * Params
  * *b: char array of reply
- * Returns 1
+ * Returns tuple:
+ * string: file path
+ * long long int: server last modified time
+ * int: file length
+ * string: file content
 */
-int ReplyHandler::handleMonitorUpdate(char *b){
+tuple<string, long long int, int, string> ReplyHandler::handleMonitorUpdate(char *b){
     char *cur = b + 4;
     int filePathLength = utils::unmarshalInt(cur);
     cur += 4;
     string filePath = utils::unmarshalString(cur, filePathLength);
     cur += filePathLength;
 
+    long long int serverLastModified = utils::unmarshalLong(cur);
+    cur += 8;
+
     int fileLength = utils::unmarshalInt(cur);
     cur += 4;
     string fileContent = utils::unmarshalString(cur, fileLength);
 
-    cout << filePath << " has been updated. " << endl;
-    cout << "New file content: " << endl;
-    cout << fileContent << endl;
-
-    return 1;
+    return make_tuple(filePath, serverLastModified, fileLength, fileContent);
 }
 
 /**Handles monitor expiry
@@ -124,8 +125,6 @@ int ReplyHandler::handleMonitorExpire(char *b){
     cur += 4;
     string filePath = utils::unmarshalString(cur, filePathLength);
 
-    cout << "Monitoring request for " << filePath << " has expired." << endl;
-
     return 1;
 }
 
@@ -136,7 +135,6 @@ int ReplyHandler::handleMonitorExpire(char *b){
  * Returns 1
 */
 int ReplyHandler::handleDeleteFromFileAck(char *b){
-    cout << "Successfully deleted from file!" << endl;
     return 1;
 }
 
@@ -146,15 +144,13 @@ int ReplyHandler::handleDeleteFromFileAck(char *b){
  * *b: char array of reply
  * Returns 1
 */
-int ReplyHandler::handleListDirReply(char *b){
+string ReplyHandler::handleListDirReply(char *b){
     char *cur = b + 4;
     int fileLength = utils::unmarshalInt(cur);
     cur += 4;
     string fileContent = utils::unmarshalString(cur, fileLength);
 
-    cout << "Folder/File Content: \n" << fileContent << endl;
-
-    return 1;
+    return fileContent;
 }
 
 /**Handles get file attribute reply

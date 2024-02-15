@@ -15,10 +15,10 @@ namespace ReplyHandler{
     tuple<string, long long int, int> handleReadFileReply(char *b);
     int handleInsertAck(char *b);
     int handleMonitorFileAck(char *b);
-    int handleMonitorUpdate(char *b);
+    tuple<string, long long int, int, string> handleMonitorUpdate(char *b);
     int handleMonitorExpire(char *b);
     int handleDeleteFromFileAck(char *b);
-    int handleListDirReply(char *b);
+    string handleListDirReply(char *b);
     long long int handleGetFileAttrReply(char *b);
     string handleErrorReply(char *b);
 }
