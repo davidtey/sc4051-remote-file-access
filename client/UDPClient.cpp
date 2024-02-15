@@ -54,6 +54,7 @@ int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool
     sendRequest(msg, msgLen);
 
     while (recvReply(replyBuffer, useTimeout) == -1){
+        this_thread::sleep_for(chrono::milliseconds(5000));
         sendRequest(msg, msgLen);
     }
     return 1;
@@ -93,15 +94,14 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
  * useTimeout: set to true to set timeout
 */
 int UDPClient::recvReply(char *buffer, bool useTimeout){
-    struct timeval timeout;
+    //struct timeval timeout;
     if (useTimeout){
-        DWORD timeout = 10 * 1000;
+        DWORD timeout = 10000;
     }
     else{
         DWORD timeout = 0;
     }
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));
-
 
     n = recvfrom(sockfd, (char *)buffer, 1024, 
         0, (struct sockaddr *) &servaddr, &servaddrLen);

@@ -7,6 +7,8 @@
 #include <Ws2tcpip.h>
 #include <iomanip>
 #include <time.h>
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
