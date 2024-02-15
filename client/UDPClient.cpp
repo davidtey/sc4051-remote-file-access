@@ -32,17 +32,10 @@ int UDPClient::connectServer(string ip, int port){
     return 1;
 }
 
-int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool timeout){
-    if (timeout){
-        struct timeval timeout;
-        timeout.tv_sec = 2;
-        timeout.tv_usec = 0;
-        setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof(timeout));
-    }
-
+int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool useTimeout){
     sendRequest(msg, msgLen);
 
-    while (recvReply(replyBuffer) == -1){
+    while (recvReply(replyBuffer, useTimeout) == -1){
         sendRequest(msg, msgLen);
     }
     return 1;
@@ -70,12 +63,18 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
     return 1;
 }
 
-int UDPClient::recvReply(char *buffer, bool timeout){
+int UDPClient::recvReply(char *buffer, bool useTimeout){
     struct timeval timeout;
-    timeout.tv_sec = 2;
+    if (useTimeout){
+        timeout.tv_sec = 2;
+    }
+    else{
+        timeout.tv_sec = 0;
+    }
     timeout.tv_usec = 0;
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof(timeout));
-    
+
+
     n = recvfrom(sockfd, (char *)buffer, 1024, 
         0, (struct sockaddr *) &servaddr, &servaddrLen);
 
