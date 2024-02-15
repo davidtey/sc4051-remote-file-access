@@ -7,6 +7,7 @@ using namespace std;
 
 namespace utils{
     void marshalInt(int x, char *b);
+    void marshalLong(long long int host_i, char *b);
     void marshalString(string s, char *b);
 
     int unmarshalInt(char *b);
