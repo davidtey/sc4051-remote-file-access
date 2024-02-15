@@ -2,70 +2,98 @@
 
 using namespace std;
 
-namespace ReplyHandler{
-
-}
-HandlerNum ReplyHandler::handleReply(char *b){
+/**Handle reply
+ * Reads first 4 bytes of reply to find reply type, then calls the appropriate reply handler to unmarshal reply
+ * 
+ * Params:
+ * *b: char array of reply
+ * Returns tuple of HandlerNum and any, with any being specific to the type of reply specified by HandlerNum
+*/
+tuple<HandlerNum, any> ReplyHandler::handleReply(char *b){
     char *cur = b;
     HandlerNum replyType = static_cast<HandlerNum>(utils::unmarshalInt(cur));
 
     switch(replyType){
         case READ_FILE_REPLY:
-            ReplyHandler::handleReadFileReply(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleReadFileReply(b));
 
         case INSERTION_ACK:
-            ReplyHandler::handleInsertAck(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleInsertAck(b));
 
         case MONITOR_FILE_ACK:
-            ReplyHandler::handleMonitorFileAck(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleMonitorFileAck(b));
 
         case MONITOR_FILE_UPDATE:
-            ReplyHandler::handleMonitorUpdate(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleMonitorUpdate(b));
 
         case MONITOR_FILE_EXPIRE:
-            ReplyHandler::handleMonitorExpire(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleMonitorExpire(b));
         
         case DELETE_FROM_FILE_ACK:
-            ReplyHandler::handleDeleteFromFileAck(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleDeleteFromFileAck(b));
         
         case LIST_DIR_REPLY:
-            ReplyHandler::handleListDirReply(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleListDirReply(b));
+
+        case GET_FILE_ATTR_REPLY:
+            return make_tuple(replyType, ReplyHandler::handleGetFileAttrReply(b));
 
         case ERROR_REPLY:
-            ReplyHandler::handleErrorReply(b);
-            return replyType;
+            return make_tuple(replyType, ReplyHandler::handleErrorReply(b));
     }
-    return UNKNOWN_REPLY;
+    return make_tuple(UNKNOWN_REPLY, 0);
 }
 
-int ReplyHandler::handleReadFileReply(char *b){
+/**Handle read file reply
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns tuple:
+ * string: file content
+ * long long int: server last modified time
+*/
+tuple<string, long long int> ReplyHandler::handleReadFileReply(char *b){
     char *cur = b + 4;
+    long long int serverLastModified = utils::unmarshalLong(cur);
+    cur += 8;
     int fileLength = utils::unmarshalInt(cur);
     cur += 4;
-    string fileContent = utils::unmarshalString(cur, fileLength);
+    int fileContentLength = utils::unmarshalInt(cur);
+    cur += 4;
 
-    cout << "File Content: \n" << fileContent << endl;
-
-    return 1;
+    string fileContent = utils::unmarshalString(cur, fileContentLength);
+    
+    return make_tuple(fileContent, serverLastModified);
 }
 
+/**Handles insert ACK
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleInsertAck(char *b){
     cout << "String has successfully been inserted!" << endl;
     return 1;
 }
 
+/**Handles monitor file ACK
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleMonitorFileAck(char *b){
     cout << "Successfully registered!" << endl;
     return 1;
 }
 
+/**Handles monitor updates
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleMonitorUpdate(char *b){
     char *cur = b + 4;
     int filePathLength = utils::unmarshalInt(cur);
@@ -84,6 +112,12 @@ int ReplyHandler::handleMonitorUpdate(char *b){
     return 1;
 }
 
+/**Handles monitor expiry
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleMonitorExpire(char *b){
     char *cur = b + 4;
     int filePathLength = utils::unmarshalInt(cur);
@@ -95,11 +129,23 @@ int ReplyHandler::handleMonitorExpire(char *b){
     return 1;
 }
 
+/**Handles delete from file ACK
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleDeleteFromFileAck(char *b){
     cout << "Successfully deleted from file!" << endl;
     return 1;
 }
 
+/**Handles list directory reply
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleListDirReply(char *b){
     char *cur = b + 4;
     int fileLength = utils::unmarshalInt(cur);
@@ -111,6 +157,26 @@ int ReplyHandler::handleListDirReply(char *b){
     return 1;
 }
 
+/**Handles get file attribute reply
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns:
+ * long long int: server last modified time
+*/
+long long int ReplyHandler::handleGetFileAttrReply(char *b){
+    char *cur = b + 4;
+    long long int serverLastModified = utils::unmarshalLong(cur);
+
+    return serverLastModified;
+}
+
+/**Handles error reply
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
 int ReplyHandler::handleErrorReply(char *b){
     char *cur = b + 4;
     int errorLength = utils::unmarshalInt(cur);
