@@ -52,7 +52,7 @@ tuple<HandlerNum, any> ReplyHandler::handleReply(char *b){
  * string: file content
  * long long int: server last modified time
 */
-tuple<string, long long int> ReplyHandler::handleReadFileReply(char *b){
+tuple<string, long long int, int> ReplyHandler::handleReadFileReply(char *b){
     char *cur = b + 4;
     long long int serverLastModified = utils::unmarshalLong(cur);
     cur += 8;
@@ -63,7 +63,7 @@ tuple<string, long long int> ReplyHandler::handleReadFileReply(char *b){
 
     string fileContent = utils::unmarshalString(cur, fileContentLength);
     
-    return make_tuple(fileContent, serverLastModified);
+    return make_tuple(fileContent, serverLastModified, fileLength);
 }
 
 /**Handles insert ACK
@@ -175,13 +175,13 @@ long long int ReplyHandler::handleGetFileAttrReply(char *b){
  * 
  * Params
  * *b: char array of reply
- * Returns 1
+ * Returns error string
 */
-int ReplyHandler::handleErrorReply(char *b){
+string ReplyHandler::handleErrorReply(char *b){
     char *cur = b + 4;
     int errorLength = utils::unmarshalInt(cur);
     cur += 4;
     string errorString = utils::unmarshalString(cur, errorLength);
-    cout << "Error: " << errorString << endl;
-    return 1;
+    
+    return errorString;
 }

@@ -12,7 +12,7 @@ using namespace std;
 */
 namespace ReplyHandler{
     tuple<HandlerNum, any> handleReply(char *b);
-    tuple<string, long long int> handleReadFileReply(char *b);
+    tuple<string, long long int, int> handleReadFileReply(char *b);
     int handleInsertAck(char *b);
     int handleMonitorFileAck(char *b);
     int handleMonitorUpdate(char *b);
@@ -20,7 +20,7 @@ namespace ReplyHandler{
     int handleDeleteFromFileAck(char *b);
     int handleListDirReply(char *b);
     long long int handleGetFileAttrReply(char *b);
-    int handleErrorReply(char *b);
+    string handleErrorReply(char *b);
 }
 
 #endif
