@@ -5,3 +5,5 @@
 client/tests.cpp
 client/tests.exe
 server/test.java
+client/client_old.cpp
+client/client_old.h
