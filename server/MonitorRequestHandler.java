@@ -176,9 +176,9 @@ public class MonitorRequestHandler extends RequestHandler{
      * int (4 bytes): MONITOR_FILE_UPDATE handler number
      * int (4 bytes): file path length
      * string (n bytes): file path
+     * long (8 bytes): server last modified time
      * int (4 bytes): file content length
      * string (m bytes): file content
-     * 
      * Prints notification information on server console.
      * </pre>
      * 
@@ -193,13 +193,15 @@ public class MonitorRequestHandler extends RequestHandler{
 
         try{
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            byte[] notificationHeader = new byte[filePath.length() + 12];
+            byte[] notificationHeader = new byte[filePath.length() + 20];
             byte[] fileContent = Database.readAll(fullFilePath);
+            long timeLastModified = Database.getFileLastModified(fullFilePath);
 
             Utils.marshalInt(notificationHeader, HandlerNum.toInt(HandlerNum.MONITOR_FILE_UPDATE), 0); // add handle to notification header
             Utils.marshalInt(notificationHeader, filePath.length(), 4);                                // add filePath length to notification header
             Utils.marshalString(notificationHeader, filePath, 8);                                      // add filePath to notification header
-            Utils.marshalInt(notificationHeader, fileContent.length, filePath.length() + 8);                 // add fileData length to notification header
+            Utils.marshalLong(notificationHeader, timeLastModified, filePath.length() + 8);                  // add time last modified to notification header
+            Utils.marshalInt(notificationHeader, fileContent.length, filePath.length() + 16);                 // add fileData length to notification header
             
             outputStream.write(notificationHeader);             // add notification header to output
             outputStream.write(fileContent);                    // add file content to output
