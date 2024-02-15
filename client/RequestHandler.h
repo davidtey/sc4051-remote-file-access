@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/**Request handler
+ * Used to marshal client requests
+*/
 namespace RequestHandler{
     int createReadRequest(int requestID, string filePath, int offset, int numBytes, char *b);
     int createWriteRequest(int requestID, string filePath, int offset, string insertString, char *b);
