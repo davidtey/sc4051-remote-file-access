@@ -25,7 +25,7 @@ class FileCache{
         bool isFresh(int freshnessInterval);
         bool isValid(long long int serverLastModified);
         string read(int offset, int numBytes);
-        int write(int offset, string insertString);
+        int write(int offset, string insertString, long long int serverLastModified, int fileLength);
         int writeFile(string data);
         void addToValidRange(int start, int end);
 };

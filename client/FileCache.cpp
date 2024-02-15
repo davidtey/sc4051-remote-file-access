@@ -14,6 +14,7 @@ FileCache::FileCache(string path, long long int lastModified, int fileLength){
     timeLastValidated = chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch()).count();
     timeLastModified = lastModified;
     fileLength = fileLength;
+    fileData = new char[fileLength];
 }
 
 /**Checks if requested range of file overlaps with cached memory
@@ -88,15 +89,28 @@ string FileCache::read(int offset, int numBytes){
 }
 
 /**Write to file cache
+ * Checks if file is still valid, if modified, resets file length and valid ranges
+ * If valid, insert new string into file cache and adds to valid range
  * 
  * offset: offset from start of file in bytes
  * insertString: string to insert into file
  * 
  * Returns 1
 */
-int FileCache::write(int offset, string insertString){
-    for (int i=0; i<insertString.length(); i++){
-        fileData[offset + i] = insertString[i];
+int FileCache::write(int offset, string insertString, long long int serverLastModified, int fileLength){
+    if (isValid(serverLastModified)){
+        for (int i=0; i<insertString.length(); i++){
+            fileData[offset + i] = insertString[i];
+        }
+        addToValidRange(offset, offset + insertString.length() - 1);
+    }
+    else{
+        fileData = new char[fileLength];
+        validRange.clear();
+        for (int i=0; i<insertString.length(); i++){
+            fileData[offset + i] = insertString[i];
+        }
+        addToValidRange(offset, offset + insertString.length() - 1);
     }
     return 1;
 }
