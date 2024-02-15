@@ -10,6 +10,10 @@
 
 using namespace std;
 
+/**UDP Client
+ * Used to send and receive UDP packets to & from database server
+ * Timeout is implemented here
+*/
 class UDPClient{
     private:
         string serverIP;

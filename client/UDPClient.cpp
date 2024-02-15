@@ -2,6 +2,9 @@
 
 using namespace std;
 
+/**UDPClient constructor
+ * Creates socket object
+*/
 UDPClient::UDPClient(){
     WORD wVersionRequested;
     WSADATA wsaData;
@@ -15,6 +18,11 @@ UDPClient::UDPClient(){
     }
 }
 
+/**Connect to server
+ * Params
+ * ip: Server IP address
+ * port: Server port
+*/
 int UDPClient::connectServer(string ip, int port){
     serverIP = ip;
     serverPort = port;
@@ -32,6 +40,16 @@ int UDPClient::connectServer(string ip, int port){
     return 1;
 }
 
+/**Send request & receive reply
+ * Will block execution until reply is received.
+ * 
+ * Params
+ * *msg: request to be sent (char array)
+ * msgLen: length of request
+ * *replyBuffer: char array buffer to store reply
+ * useTimeout: set to true to set timeout
+ * Returns 1 when reply received
+*/
 int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool useTimeout){
     sendRequest(msg, msgLen);
 
@@ -41,7 +59,12 @@ int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool
     return 1;
 }
 
-
+/**Send request to server
+ * 
+ * Params
+ * *msg: request to be sent (char array)
+ * msgLen: length of request
+*/
 int UDPClient::sendRequest(const char *msg, int msgLen){
     // debug print
     cout << "Sending to server: ";
@@ -63,6 +86,12 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
     return 1;
 }
 
+/**Receive reply from server
+ * 
+ * Params
+ * *replyBuffer: char array buffer to store reply
+ * useTimeout: set to true to set timeout
+*/
 int UDPClient::recvReply(char *buffer, bool useTimeout){
     struct timeval timeout;
     if (useTimeout){
