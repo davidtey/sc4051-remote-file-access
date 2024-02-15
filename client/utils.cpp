@@ -17,6 +17,20 @@ void utils::marshalInt(int host_i, char *b){
     }
 }
 
+/* Marshals a long long int
+ * Converts hostlong integer to netlong
+ * Returns by reference to buffer
+*/
+void utils::marshalLong(long long int host_i, char *b){
+    long long int net_i = htonll(host_i);
+    char *cur = b;
+    char *net_i_p = (char*) &net_i;
+
+    for (int i=0; i<8; i++){
+        *(cur + i) = *(net_i_p + i);
+    }
+}
+
 /* Marshals a string
  * Returns by reference to buffer
 */
