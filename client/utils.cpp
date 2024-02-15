@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-/* Marshals an integer
+/**Marshals an integer
  * Converts hostlong integer to netlong
  * Returns by reference to buffer
 */
@@ -17,7 +17,7 @@ void utils::marshalInt(int host_i, char *b){
     }
 }
 
-/* Marshals a long long int
+/**Marshals a long long int
  * Converts hostlong integer to netlong
  * Returns by reference to buffer
 */
@@ -31,7 +31,7 @@ void utils::marshalLong(long long int host_i, char *b){
     }
 }
 
-/* Marshals a string
+/**Marshals a string
  * Returns by reference to buffer
 */
 void utils::marshalString(string s, char *b){
@@ -41,7 +41,7 @@ void utils::marshalString(string s, char *b){
     }
 }
 
-/* Unmarshals int
+/**Unmarshals int
  * Returns by value
  * Assumes network transmit in big endian and converts from netlong to hostlong
 */
@@ -56,7 +56,7 @@ int utils::unmarshalInt(char *b){
     return host_i;
 }
 
-/* Unmarshals long int (64 bit)
+/**Unmarshals long int (64 bit)
  * Returns by value
  * Assumes network transmit in big endian and converts from netlong to hostlong
 */
@@ -71,7 +71,7 @@ long long utils::unmarshalLong(char *b){
     return host_i;
 }
 
-/* Unmarshals string
+/**Unmarshals string
  * Returns by value
 */
 string utils::unmarshalString(char *b, int length){

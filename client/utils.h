@@ -5,6 +5,9 @@
 
 using namespace std;
 
+/**Utilities
+ * Used for marshalling and unmarshalling primitives
+*/
 namespace utils{
     void marshalInt(int x, char *b);
     void marshalLong(long long int host_i, char *b);
