@@ -130,3 +130,21 @@ int RequestHandler::createListDirRequest(int requestID, string filePath, char *b
 
     return (int) (cur - b);
 }
+
+int RequestHandler::createGetFileAttrRequest(int requestID, string filePath, char *b){
+    char *cur = b; // index increment
+
+    utils::marshalInt(HandlerNum::GET_FILE_ATTR_REQUEST, cur); // insert handler number into request message
+    cur += 4;   // increment by 4 bytes
+
+    utils::marshalInt(requestID, cur);              // insert request ID
+    cur += 4;    // increment by 4 bytes
+
+    utils::marshalInt(filePath.length(), cur);      // insert filePath length into request message
+    cur += 4;   // increment by 4 bytes
+
+    utils::marshalString(filePath, cur);            // insert filePath into request message
+    cur += filePath.length();   // increment by length of filePath
+
+    return (int) (cur - b);
+}
