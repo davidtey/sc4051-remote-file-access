@@ -29,14 +29,30 @@ int DatabaseProxy::connectToDatabase(string serverIP, int serverPort){
 */
 void DatabaseProxy::readFromFile(string filePath, int offset, int numBytes){
     // check cache
-    if (checkCacheHit(filePath, offset, numBytes)){
+    if (!checkCacheExists(filePath)){
+        cout << "Cache does not exist, reading from server..." << endl;
+        readFileFromServer(filePath, offset, numBytes);
+        return;
+    }
+
+    if (!checkCacheOverlap(filePath, offset, numBytes)){
+        cout << "Cache does not overlap, reading from server..." << endl;
+        readFileFromServer(filePath, offset, numBytes);
+        return;
+    }
+
+    if (checkCacheFresh(filePath, offset, numBytes)){
+        cout << "Cache hit! Reading from cache..." << endl;
         readFileFromCache(filePath, offset, numBytes);
     }
     else{
+        cout << "Cache may be outdated, checking with server..." << endl;
         if (checkCacheValid(filePath)){
+            cout << "Cache valid! Reading from cache..." << endl;
             readFileFromCache(filePath, offset, numBytes);
         }
         else{
+            cout << "Cache invalid, reading from server..." << endl;
             readFileFromServer(filePath, offset, numBytes);
         }
     }
@@ -50,14 +66,23 @@ void DatabaseProxy::readFromFile(string filePath, int offset, int numBytes){
  * insertString: string to insert into file
 */
 void DatabaseProxy::writeToFile(string filePath, int offset, string insertString){
-    // write cache
-
     // write to server
     int reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
     ReplyHandler::handleReply(replyBuffer);
 
     // prints reply depending on success/error
+    tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
+    HandlerNum replyType = get<0>(reply);
+
+    if (replyType == INSERTION_ACK){
+        cout << "Content has been inserted into file successfully" << endl;
+    }
+    else if (replyType == ERROR_REPLY){
+        string errorMessage = any_cast<string>(get<1>(reply));
+        cout << "Error encountered by server: " << errorMessage << endl;
+    }
+    deleteFileCache(filePath);  // assume delete cache when writing to server
 }
 
 /**Monitor file
@@ -72,7 +97,41 @@ void DatabaseProxy::monitorFile(string filePath, int monitorInterval){
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
     ReplyHandler::handleReply(replyBuffer);
 
-    
+    tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer); // handle reply
+    HandlerNum replyType = get<0>(reply);
+
+    if (replyType == HandlerNum::MONITOR_FILE_ACK){                                // successfully registered
+        while (replyType != HandlerNum::MONITOR_FILE_EXPIRE){
+            udpClient.recvReply(replyBuffer, false);                               // receive reply
+            tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer); // handle reply
+            replyType = get<0>(reply);
+
+            if (replyType == MONITOR_FILE_UPDATE){
+                tuple<string, long long int, int, string> replyTuple = any_cast<tuple<string, long long int, int, string>>(get<1>(reply));
+                string updateFilePath = get<0>(replyTuple);
+                long long int serverLastModified = get<1>(replyTuple);
+                int fileLength = get<2>(replyTuple);
+                string fileContent = get<3>(replyTuple);
+
+                cout << updateFilePath << " has been updated. " << endl;
+                cout << "New file content: " << endl;
+                cout << fileContent << endl;
+
+                writeToCache(filePath, 0, fileContent, serverLastModified, fileLength);
+            }
+            else if (replyType == ERROR_REPLY){
+                string errorMessage = any_cast<string>(get<1>(reply));
+                cout << "Error encountered by server: " << errorMessage << endl;
+            }
+        }
+
+        // send expiry ack (todo)
+        cout << "Monitoring request for " << filePath << " has expired." << endl;
+    }
+    else if (replyType == ERROR_REPLY){
+        string errorMessage = any_cast<string>(get<1>(reply));
+        cout << "Error encountered by server: " << errorMessage << endl;
+    }
 }
 
 /**Delete from file
@@ -83,9 +142,24 @@ void DatabaseProxy::monitorFile(string filePath, int monitorInterval){
  * numBytes: numer of bytes to delete
 */
 void DatabaseProxy::deleteFromFile(string filePath, int offset, int numBytes){
+    // delete from server
+    int reqLength = RequestHandler::createDeleteFromFileRequest(requestID, filePath, offset, numBytes, reqBuffer);
+    udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    ReplyHandler::handleReply(replyBuffer);
 
+    // prints reply depending on success/error
+    tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
+    HandlerNum replyType = get<0>(reply);
+
+    if (replyType == DELETE_FROM_FILE_ACK){
+        cout << "Content has been deleted from file successfully" << endl;
+    }
+    else if (replyType == ERROR_REPLY){
+        string errorMessage = any_cast<string>(get<1>(reply));
+        cout << "Error encountered by server: " << errorMessage << endl;
+    }
+    deleteFileCache(filePath);  // assume delete cache when deleting from server
 }
-
 
 /**List directory
  * 
@@ -93,7 +167,21 @@ void DatabaseProxy::deleteFromFile(string filePath, int offset, int numBytes){
  * filePath: file path of requested file
 */
 void DatabaseProxy::listDirectory(string filePath){
+    int reqLength = RequestHandler::createListDirRequest(requestID, filePath, reqBuffer);
+    udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    ReplyHandler::handleReply(replyBuffer);
 
+    tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
+    HandlerNum replyType = get<0>(reply);
+
+    if (replyType == LIST_DIR_REPLY){
+        string fileContent = any_cast<string>(get<1>(reply));
+        cout << "Folder/File Content: \n" << fileContent << endl;
+    }
+    else if (replyType == ERROR_REPLY){
+        string errorMessage = any_cast<string>(get<1>(reply));
+        cout << "Error encountered by server: " << errorMessage << endl;
+    }
 }
 
 /**Get File Attribute
@@ -130,11 +218,21 @@ long long int DatabaseProxy::getFileAttr(string filePath){
  * Returns true if file cache exists
 */
 bool DatabaseProxy::checkCacheExists(string filePath){
-    FileCache *fileCache = cache[filePath];
-    if (fileCache == NULL){
-        return true;
+    if (cache.find(filePath) == cache.end()){
+        return false;
     }
-    return false;
+    return true;
+}
+
+/**Check if file cache overlaps
+ * 
+ * filePath: file path of requested file
+ * offset: byte offset in file
+ * numBytes: numer of bytes to delete
+ * Returns true if file cache overlaps
+*/
+bool DatabaseProxy::checkCacheOverlap(string filePath, int offset, int numBytes){
+    return cache.at(filePath)->overlap(offset, numBytes);
 }
 
 /**Check if file cache exists, overlaps and is fresh
@@ -143,15 +241,12 @@ bool DatabaseProxy::checkCacheExists(string filePath){
  * filePath: file path of requested file
  * offset: byte offset in file
  * numBytes: numer of bytes to delete
- * Returns true if file cache exists, overlaps and is fresh
+ * Returns true if file cache is fresh
 */
-bool DatabaseProxy::checkCacheHit(string filePath, int offset, int numBytes){
-    if (!checkCacheExists) return false;
+bool DatabaseProxy::checkCacheFresh(string filePath, int offset, int numBytes){
+    if (!checkCacheExists(filePath)) return false;
 
-    FileCache *fileCache = cache[filePath];
-    if (!fileCache->overlap(offset, numBytes)) return false;
-
-    if (!fileCache->isFresh(freshnessInterval)) return false;
+    if (!cache.at(filePath)->isFresh(freshnessInterval)) return false;
 
     return true;
 }
@@ -168,7 +263,7 @@ bool DatabaseProxy::checkCacheValid(string filePath){
     long long int serverLastModified = getFileAttr(filePath);
     if (serverLastModified < 0) return false;
 
-    if (cache[filePath]->isValid(serverLastModified))return true;
+    if (cache.at(filePath)->isValid(serverLastModified)) return true;
 
     return false;
 }
@@ -205,7 +300,6 @@ void DatabaseProxy::readFileFromServer(string filePath, int offset, int numBytes
     }
 }
 
-
 /**Read file from cache
  * 
  * Params
@@ -214,7 +308,7 @@ void DatabaseProxy::readFileFromServer(string filePath, int offset, int numBytes
  * numBytes: numer of bytes to delete
 */
 void DatabaseProxy::readFileFromCache(string filePath, int offset, int numBytes){
-    string fileContent = cache[filePath]->read(offset, numBytes);
+    string fileContent = cache.at(filePath)->read(offset, numBytes);
     cout << "File Content: \n" << fileContent << endl;
 }
 
@@ -230,12 +324,20 @@ void DatabaseProxy::readFileFromCache(string filePath, int offset, int numBytes)
 void DatabaseProxy::writeToCache(string filePath, int offset, string fileContent, long long int serverLastModified, int fileLength){
     // save file content to cache
     if (checkCacheExists(filePath)){
-        cache[filePath]->write(offset, fileContent, serverLastModified, fileLength);
+        cache.at(filePath)->write(offset, fileContent, serverLastModified, fileLength);
     }
     else{
         FileCache *fileCache = new FileCache(filePath, serverLastModified, fileLength);
-        cache[filePath] = fileCache;
+        cache.insert({filePath, fileCache});
 
         fileCache->write(offset, fileContent, serverLastModified, fileLength);
     }
+}
+
+/**Delete file from cache
+ * Params
+ * filePath: file path of requested file
+*/
+void DatabaseProxy::deleteFileCache(string filePath){
+    cache.erase(filePath);
 }

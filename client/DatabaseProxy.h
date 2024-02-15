@@ -23,11 +23,13 @@ class DatabaseProxy{
         char replyBuffer[1024];
         long long int getFileAttr(string filePath);
         bool checkCacheExists(string filePath);
-        bool checkCacheHit(string filePath, int offset, int numBytes);
+        bool checkCacheOverlap(string filePath, int offset, int numBytes);
+        bool checkCacheFresh(string filePath, int offset, int numBytes);
         bool checkCacheValid(string filePath);
         void readFileFromServer(string filePath, int offset, int numBytes);
         void readFileFromCache(string filePath, int offset, int numBytes);
         void writeToCache(string filePath, int offset, string fileContent, long long int serverLastModified, int fileLength);
+        void deleteFileCache(string filePath);
 
     public:
         int freshnessInterval;
