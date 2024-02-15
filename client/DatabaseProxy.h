@@ -1,7 +1,11 @@
 #ifndef DATABASEPROXY_H
 #define DATABASEPROXY_H
 #include <iostream>
+#include <limits.h>
+#include <map>
 #include "UDPClient.h"
+#include "FileCache.h"
+
 
 using namespace std;
 
@@ -14,11 +18,19 @@ class DatabaseProxy{
     private:
         UDPClient udpClient;
         int requestID;
+        map<string, FileCache*> cache;
         char reqBuffer[1024];
         char replyBuffer[1024];
-        void getFileAttr(string filePath);
+        long long int getFileAttr(string filePath);
+        bool checkCacheExists(string filePath);
+        bool checkCacheHit(string filePath, int offset, int numBytes);
+        bool checkCacheValid(string filePath);
+        void readFileFromServer(string filePath, int offset, int numBytes);
+        void readFileFromCache(string filePath, int offset, int numBytes);
+        void writeToCache(string filePath, int offset, string fileContent, long long int serverLastModified, int fileLength);
 
     public:
+        int freshnessInterval;
         DatabaseProxy();
         int connectToDatabase(string serverIP, int serverPort);
         void readFromFile(string filePath, int offset, int numBytes);
