@@ -1,13 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
-#include "UDPClient.h"
-#include <limits.h>
-#include "ReplyHandler.h"
-#include <map>
-#include "FileCache.h"
-#include <chrono>
-#include "RequestHandler.h"
 #include "DatabaseProxy.h"
+#include <iostream>
 
 using namespace std;
 
@@ -17,7 +11,6 @@ class Client{
     private:
         DatabaseProxy database;
         string filePath, insertString;
-        map<string, FileCache*> cache;
         
         int offset, numBytes, monitorInterval;
         int reqLength;
