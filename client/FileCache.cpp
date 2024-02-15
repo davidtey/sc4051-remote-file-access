@@ -2,6 +2,13 @@
 
 using namespace std;
 
+/**FileCache constructor
+ * 
+ * Params
+ * path: file path
+ * lastModified: file last modified time (local)
+ * fileLength: length of file
+*/
 FileCache::FileCache(string path, long long int lastModified, int fileLength){
     filePath = path;
     timeLastValidated = chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch()).count();
@@ -9,6 +16,14 @@ FileCache::FileCache(string path, long long int lastModified, int fileLength){
     fileLength = fileLength;
 }
 
+/**Checks if requested range of file overlaps with cached memory
+ * 
+ * Params
+ * offset: offset from start of file in bytes
+ * numBytes: number of bytes to read from file
+ * 
+ * Returns true if requested range overlaps with cached memory
+*/
 bool FileCache::overlap(int offset, int numBytes){
     int start = offset;
     int end = offset + numBytes - 1;
@@ -25,6 +40,13 @@ bool FileCache::overlap(int offset, int numBytes){
     return false;
 }
 
+/**Checks if file cache is fresh
+ * 
+ * Params
+ * freshnessInterval: threshold time needed for cache to be considered fresh
+ * 
+ * Returns true if time cache was last validated is within freshness interval
+*/
 bool FileCache::isFresh(int freshnessInterval){
     chrono::milliseconds T = chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch());
     if (T.count() - timeLastValidated < freshnessInterval*1000){
@@ -33,6 +55,13 @@ bool FileCache::isFresh(int freshnessInterval){
     return false;
 }
 
+/**Checks if cache is valid
+ * 
+ * Params
+ * serverLastModified: time same file on server was last modified
+ * 
+ * Returns true if time last modified on local cache is equal to time last modified on server
+*/
 bool FileCache::isValid(long long int serverLastModified){
     if (timeLastModified < serverLastModified){
         return false;
@@ -40,6 +69,14 @@ bool FileCache::isValid(long long int serverLastModified){
     return true;
 }
 
+/**Read from file cacahe
+ * 
+ * Params
+ * offset: offset from start of file in bytes
+ * numBytes: number of bytes to read from file
+ * 
+ * Returns string of file content
+*/
 string FileCache::read(int offset, int numBytes){
     char out[numBytes];
 
@@ -50,6 +87,13 @@ string FileCache::read(int offset, int numBytes){
     return string(out);
 }
 
+/**Write to file cache
+ * 
+ * offset: offset from start of file in bytes
+ * insertString: string to insert into file
+ * 
+ * Returns 1
+*/
 int FileCache::write(int offset, string insertString){
     for (int i=0; i<insertString.length(); i++){
         fileData[offset + i] = insertString[i];
@@ -57,11 +101,25 @@ int FileCache::write(int offset, string insertString){
     return 1;
 }
 
+/**Write to file cache (whole file)
+ * 
+ * Params
+ * data: file content to write into file
+ * 
+ * Returns 1
+*/
 int FileCache::writeFile(string data){
     fileData = data;
     return 1;
 }
 
+/**Add to valid range
+ * When reading from server, adds recently accessed range of file into cache
+ * 
+ * Params
+ * start: start byte
+ * end: end byte
+*/
 void FileCache::addToValidRange(int start, int end){
     if (validRange.empty()){
         validRange.push_back(make_tuple(start, end));

@@ -1,6 +1,9 @@
 #ifndef HANDLER_ENUM
 #define HANDLER_ENUM
 
+/**HandlerNum Enum
+ * Enum for types of requests & replies for identification.
+ */
 enum HandlerNum {
     READ_FILE_REQUEST = 1,
     WRITE_FILE_REQUEST = 2,

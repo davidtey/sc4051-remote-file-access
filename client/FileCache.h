@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/**FileCache class
+ * Used to cache files recently read
+*/
 class FileCache{
     private:
         string filePath;
