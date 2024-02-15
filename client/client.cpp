@@ -16,7 +16,7 @@ int Client::connectMenu(){
         cout << "Server address: ";
         cin >> serverIP;
         serverPort = readInt("Server port: ", 0, 65535);
-        freshnessInterval = readInt("Freshness interval (in s): ", 0, INT_MAX);
+        int freshnessInterval = readInt("Freshness interval (in s): ", 0, INT_MAX);
 
         if (database.connectToDatabase(serverIP, serverPort) == 1){
             connected = true;
@@ -108,6 +108,8 @@ int Client::monitorFileMenu(){
     cout << "File path: ";
     getline(cin >> ws, filePath);                                       // user input filePath
     monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX); // user input monitorInterval
+    database.monitorFile(filePath, monitorInterval);
+    return 1;
 }
 
 int Client::deleteFromFileMenu(){
@@ -116,12 +118,16 @@ int Client::deleteFromFileMenu(){
     getline(cin >> ws, filePath);                                   // user input filePath
     offset = readInt("Bytes offset (in bytes): ", 0, INT_MAX);      // user input offset
     numBytes = readInt("Number of bytes to delete: ", 0, INT_MAX);  // user input numBytes
+    database.deleteFromFile(filePath, offset, numBytes);
+    return 1;
 }
 
 int Client::listDirMenu(){
     cout << "\n----- Read File -----" << endl;
     cout << "Directory path ('.' for root): ";
     getline(cin >> ws, filePath);                                   // user input filePath
+    database.listDirectory(filePath);
+    return 1;
 }
 
 /* Read integer from user input, assumes nonnegative input and does error checking for non integer input

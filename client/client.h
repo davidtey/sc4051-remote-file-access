@@ -3,6 +3,9 @@
 #include "UDPClient.h"
 #include <limits.h>
 #include "ReplyHandler.h"
+#include <map>
+#include "FileCache.h"
+#include <chrono>
 #include "RequestHandler.h"
 #include "DatabaseProxy.h"
 
@@ -14,6 +17,8 @@ class Client{
     private:
         DatabaseProxy database;
         string filePath, insertString;
+        map<string, FileCache*> cache;
+        
         int offset, numBytes, monitorInterval;
         int reqLength;
         int requestID = 1;
