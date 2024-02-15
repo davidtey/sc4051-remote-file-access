@@ -34,7 +34,8 @@ bool FileCache::overlap(int offset, int numBytes){
     }
 
     for (auto& curTuple : validRange){
-        if (get<0>(curTuple) >= start && get<1>(curTuple) <= end){  // if (start, end) inside curTuple
+        if (get<0>(curTuple) <= start && get<1>(curTuple) >= end){  // if (start, end) inside curTuple
+            cout << "Valid Range: min: " << get<0>(curTuple) << ", max: " << get<1>(curTuple) << endl; 
             return true;
         }   
     }
@@ -50,7 +51,8 @@ bool FileCache::overlap(int offset, int numBytes){
 */
 bool FileCache::isFresh(int freshnessInterval){
     chrono::milliseconds T = chrono::duration_cast< chrono::milliseconds >(chrono::system_clock::now().time_since_epoch());
-    if (T.count() - timeLastValidated < freshnessInterval*1000){
+    if ((long long int) T.count() - timeLastValidated < freshnessInterval*1000){
+        cout << "Time difference: " << (long long int) T.count() - timeLastValidated << endl;
         return true;
     }
     return false;
@@ -79,11 +81,13 @@ bool FileCache::isValid(long long int serverLastModified){
  * Returns string of file content
 */
 string FileCache::read(int offset, int numBytes){
-    char out[numBytes];
+    char out[numBytes + 1];
 
     for (int i=0; i<numBytes; i++){
         out[i] = fileData[offset+i];
     }
+
+    out[numBytes] = '\0';
 
     return string(out);
 }
@@ -99,12 +103,14 @@ string FileCache::read(int offset, int numBytes){
 */
 int FileCache::write(int offset, string insertString, long long int serverLastModified, int fileLength){
     if (isValid(serverLastModified)){
+        cout << "Cache valid, writing to current cached file!" << endl;
         for (int i=0; i<insertString.length(); i++){
             fileData[offset + i] = insertString[i];
         }
         addToValidRange(offset, offset + insertString.length() - 1);
     }
     else{
+        cout << "Cache invalid, overwriting current cached file..." << endl;
         fileData = new char[fileLength];
         validRange.clear();
         for (int i=0; i<insertString.length(); i++){
@@ -173,6 +179,9 @@ void FileCache::addToValidRange(int start, int end){
 
         newValidRange.push_back(make_tuple(low, high));     // add union of overlapping tuples as 1 single tuple
         validRange.clear();
-        validRange = newValidRange;                         // set validRange to newValidRange
+
+        for (auto& curTuple : newValidRange){
+            validRange.push_back(curTuple);                         // set validRange to newValidRange
+        }
     }
 }
