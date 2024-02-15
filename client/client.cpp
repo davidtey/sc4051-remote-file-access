@@ -16,7 +16,7 @@ int Client::connectMenu(){
         cout << "Server address: ";
         cin >> serverIP;
         serverPort = readInt("Server port: ", 0, 65535);
-        int freshnessInterval = readInt("Freshness interval (in s): ", 0, INT_MAX);
+        database.freshnessInterval = readInt("Freshness interval (in s): ", 0, INT_MAX);
 
         if (database.connectToDatabase(serverIP, serverPort) == 1){
             connected = true;
