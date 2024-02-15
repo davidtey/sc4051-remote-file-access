@@ -69,6 +69,7 @@ void DatabaseProxy::writeToFile(string filePath, int offset, string insertString
     // write to server
     int reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    requestID++;
     ReplyHandler::handleReply(replyBuffer);
 
     // prints reply depending on success/error
@@ -95,6 +96,7 @@ void DatabaseProxy::monitorFile(string filePath, int monitorInterval){
     // send monitor request
     int reqLength = RequestHandler::createMonitorRequest(requestID, filePath, monitorInterval, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    requestID++;
     ReplyHandler::handleReply(replyBuffer);
 
     tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer); // handle reply
@@ -127,6 +129,7 @@ void DatabaseProxy::monitorFile(string filePath, int monitorInterval){
 
         // send expiry ack (todo)
         cout << "Monitoring request for " << filePath << " has expired." << endl;
+        requestID++;
     }
     else if (replyType == ERROR_REPLY){
         string errorMessage = any_cast<string>(get<1>(reply));
@@ -145,6 +148,7 @@ void DatabaseProxy::deleteFromFile(string filePath, int offset, int numBytes){
     // delete from server
     int reqLength = RequestHandler::createDeleteFromFileRequest(requestID, filePath, offset, numBytes, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    requestID++;
     ReplyHandler::handleReply(replyBuffer);
 
     // prints reply depending on success/error
@@ -169,6 +173,7 @@ void DatabaseProxy::deleteFromFile(string filePath, int offset, int numBytes){
 void DatabaseProxy::listDirectory(string filePath){
     int reqLength = RequestHandler::createListDirRequest(requestID, filePath, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    requestID++;
     ReplyHandler::handleReply(replyBuffer);
 
     tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
@@ -194,6 +199,7 @@ void DatabaseProxy::listDirectory(string filePath){
 long long int DatabaseProxy::getFileAttr(string filePath){
     int reqLength = RequestHandler::createGetFileAttrRequest(requestID, filePath, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    requestID++;
     tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
     HandlerNum replyType = get<0>(reply);
 
@@ -279,6 +285,7 @@ void DatabaseProxy::readFileFromServer(string filePath, int offset, int numBytes
     // read from server
     int reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);
     udpClient.sendNReceive(reqBuffer, reqLength, replyBuffer, true);
+    requestID++;
     ReplyHandler::handleReply(replyBuffer);
     
     tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
