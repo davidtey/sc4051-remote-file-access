@@ -9,7 +9,6 @@ int Client::connectMenu(){
     bool connected = false;
     string serverIP;
     int serverPort;
-    int freshnessInterval;
 
     while (!connected){
         cout << "\n===== Remote File Access System Client =====\n";
@@ -17,6 +16,7 @@ int Client::connectMenu(){
         cout << "Server address: ";
         cin >> serverIP;
         serverPort = readInt("Server port: ", 0, 65535);
+        freshnessInterval = readInt("Freshness interval (in s): ", 0, INT_MAX);
 
         if (database.connectToDatabase(serverIP, serverPort) == 1){
             connected = true;
@@ -108,64 +108,20 @@ int Client::monitorFileMenu(){
     cout << "File path: ";
     getline(cin >> ws, filePath);                                       // user input filePath
     monitorInterval = readInt("Monitor interval (in s): ", 0, INT_MAX); // user input monitorInterval
-
-    // create request and send
-    reqLength = RequestHandler::createMonitorRequest(requestID, filePath, monitorInterval, reqBuffer);   // create request
-    
-    udpClient.send(reqBuffer, reqLength);   // send request
-
-    // receive reply and handle (monitor until expired)
-
-    udpClient.recv(replyBuffer);            // receive reply
-    HandlerNum replyType = ReplyHandler::handleReply(replyBuffer); // handle reply
-
-    if (replyType == HandlerNum::MONITOR_FILE_ACK){     // successfully registered
-        while (replyType != HandlerNum::MONITOR_FILE_EXPIRE){
-            udpClient.recv(replyBuffer);            // receive reply
-            replyType = ReplyHandler::handleReply(replyBuffer); // handle reply
-        }
-    }
-    
-    requestID++;
-    return 1;
 }
 
 int Client::deleteFromFileMenu(){
     cout << "\n----- Delete from File -----" << endl;
     cout << "File path: ";
-    getline(cin >> ws, filePath);                               // user input filePath
-    offset = readInt("Bytes offset (in bytes): ", 0, INT_MAX);   // user input offset
-    numBytes = readInt("Number of bytes to delete: ", 0, INT_MAX);// user input numBytes
-
-    // create request and send
-    reqLength = RequestHandler::createDeleteFromFileRequest(requestID, filePath, offset, numBytes, reqBuffer);    //create request
-    
-    udpClient.send(reqBuffer, reqLength);   // send request
-
-    // receive reply and handle
-    udpClient.recv(replyBuffer);            // receive reply
-    ReplyHandler::handleReply(replyBuffer); // handle reply
-    
-    requestID++;
-    return 1;
+    getline(cin >> ws, filePath);                                   // user input filePath
+    offset = readInt("Bytes offset (in bytes): ", 0, INT_MAX);      // user input offset
+    numBytes = readInt("Number of bytes to delete: ", 0, INT_MAX);  // user input numBytes
 }
 
 int Client::listDirMenu(){
     cout << "\n----- Read File -----" << endl;
     cout << "Directory path ('.' for root): ";
-    getline(cin >> ws, filePath);                               // user input filePath
-
-    // create request and send
-    reqLength = RequestHandler::createListDirRequest(requestID, filePath, reqBuffer);    //create request
-
-    udpClient.send(reqBuffer, reqLength);   // send request
-
-    // receive reply and handle
-    udpClient.recv(replyBuffer);            // receive reply
-    ReplyHandler::handleReply(replyBuffer); // handle reply
-    
-    requestID++;
-    return 1;
+    getline(cin >> ws, filePath);                                   // user input filePath
 }
 
 /* Read integer from user input, assumes nonnegative input and does error checking for non integer input
