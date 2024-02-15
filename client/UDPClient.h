@@ -5,6 +5,8 @@
 #include <iostream>
 #include <winsock2.h>
 #include <Ws2tcpip.h>
+#include <iomanip>
+#include <time.h>
 
 using namespace std;
 
@@ -22,7 +24,8 @@ class UDPClient{
     public:
         UDPClient();
         int connectServer(string ip, int port);
-        int send(const char *msg, int msgLen);
-        int recv(char *buffer);
+        int sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool timeout);
+        int sendRequest(const char *msg, int msgLen);
+        int recvReply(char *buffer, bool timeout);
 };
 #endif

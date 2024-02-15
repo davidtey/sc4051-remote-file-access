@@ -1,9 +1,10 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 #include "UDPClient.h"
-#include "invocation.h"
 #include <limits.h>
 #include "ReplyHandler.h"
+#include "RequestHandler.h"
+#include "DatabaseProxy.h"
 
 using namespace std;
 
@@ -11,17 +12,13 @@ using namespace std;
 */
 class Client{
     private:
-        UDPClient udpClient;
-        Invocation invocation;
+        DatabaseProxy database;
         string filePath, insertString;
         int offset, numBytes, monitorInterval;
         int reqLength;
-        char reqBuffer[1024];
-        char replyBuffer[1024];
         int requestID = 1;
 
         int connectMenu();
-        int invocationMenu();
         int mainMenu();
         int readFileMenu();
         int writeFileMenu();

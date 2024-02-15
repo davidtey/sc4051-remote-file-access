@@ -1,5 +1,4 @@
 #include "UDPClient.h"
-#include <iomanip>
 
 using namespace std;
 
@@ -33,8 +32,25 @@ int UDPClient::connectServer(string ip, int port){
     return 1;
 }
 
-int UDPClient::send(const char *msg, int msgLen){
+int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool timeout){
+    if (timeout){
+        struct timeval timeout;
+        timeout.tv_sec = 2;
+        timeout.tv_usec = 0;
+        setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof(timeout));
+    }
 
+    sendRequest(msg, msgLen);
+
+    while (recvReply(replyBuffer) == -1){
+        sendRequest(msg, msgLen);
+    }
+    return 1;
+}
+
+
+int UDPClient::sendRequest(const char *msg, int msgLen){
+    // debug print
     cout << "Sending to server: ";
 
     for(int i=0; i<msgLen; i++){
@@ -54,10 +70,16 @@ int UDPClient::send(const char *msg, int msgLen){
     return 1;
 }
 
-int UDPClient::recv(char *buffer){
+int UDPClient::recvReply(char *buffer, bool timeout){
+    struct timeval timeout;
+    timeout.tv_sec = 2;
+    timeout.tv_usec = 0;
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof(timeout));
+    
     n = recvfrom(sockfd, (char *)buffer, 1024, 
         0, (struct sockaddr *) &servaddr, &servaddrLen);
 
+    // debug print
     cout << "Reply from server: ";
     for(int i=0; i<n; i++){
         if (i % 4 == 0){
@@ -69,6 +91,7 @@ int UDPClient::recv(char *buffer){
     
     if (n < 0){
         cout << "Client failed to receive message." << endl;
+        return n;
     }
     
     buffer[n] = '\0';

@@ -1,5 +1,4 @@
 #include "client.h"
-#include "RequestHandler.h"
 
 using namespace std;
 
@@ -19,22 +18,10 @@ int Client::connectMenu(){
         cin >> serverIP;
         serverPort = readInt("Server port: ", 0, 65535);
 
-        if (udpClient.connectServer(serverIP, serverPort) == 1){
+        if (database.connectToDatabase(serverIP, serverPort) == 1){
             connected = true;
         }
     }
-    return 1;
-}
-
-/* Client invocation menu
- * Allow client to specify invocation semantics
-*/
-int Client::invocationMenu(){
-    int invocationInput;
-
-    cout << "1. At-least-once invocation semantics" << endl;
-    cout << "2. At-most-once invocation semantics" << endl;
-    invocationInput = readInt("Please choose the invocation semantics: ", 1, 2);
     return 1;
 }
 
@@ -100,15 +87,7 @@ int Client::readFileMenu(){
     offset = readInt("Read offset (in bytes): ", 0, INT_MAX);   // user input offset
     numBytes = readInt("Number of bytes to read: ", 0, INT_MAX);// user input numBytes
 
-    // create request and send
-    reqLength = RequestHandler::createReadRequest(requestID, filePath, offset, numBytes, reqBuffer);    //create request
-    
-    udpClient.send(reqBuffer, reqLength);   // send request
-
-    // receive reply and handle
-    udpClient.recv(replyBuffer);            // receive reply
-    ReplyHandler::handleReply(replyBuffer); // handle reply
-    requestID++;
+    database.readFromFile(filePath, offset, numBytes);
     return 1;
 }
 
@@ -120,16 +99,7 @@ int Client::writeFileMenu(){
     cout << "Insert string: ";
     getline(cin >> ws, insertString);                           // user input inputString
 
-    // create request and send
-    reqLength = RequestHandler::createWriteRequest(requestID, filePath, offset, insertString, reqBuffer);   // create request
-
-    udpClient.send(reqBuffer, reqLength);   // send request
-
-    // receive reply and handle
-    udpClient.recv(replyBuffer);            // receive reply
-    ReplyHandler::handleReply(replyBuffer); // handle reply
-
-    requestID++;
+    database.writeToFile(filePath, offset, insertString);
     return 1;
 }
 
@@ -230,8 +200,8 @@ int Client::readInt(string prompt, int min, int max){
  * Calls connect menu to initialise & check connection
 */ 
 Client::Client(){
+    DatabaseProxy database;
     connectMenu();
-    requestID = 1;
 }
 
 /* Start client process
