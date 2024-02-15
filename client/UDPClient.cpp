@@ -95,13 +95,12 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
 int UDPClient::recvReply(char *buffer, bool useTimeout){
     struct timeval timeout;
     if (useTimeout){
-        timeout.tv_sec = 2;
+        DWORD timeout = 10 * 1000;
     }
     else{
-        timeout.tv_sec = 0;
+        DWORD timeout = 0;
     }
-    timeout.tv_usec = 0;
-    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof(timeout));
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));
 
 
     n = recvfrom(sockfd, (char *)buffer, 1024, 
