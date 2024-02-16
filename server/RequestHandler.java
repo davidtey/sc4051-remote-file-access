@@ -70,6 +70,9 @@ public abstract class RequestHandler{
         else if (requestType == HandlerNum.GET_FILE_ATTR_REQUEST){      // create get file attribute request handler
             requestHandler = new GetFileAttrRequestHandler(request.getAddress(), request.getPort(), requestID, b);
         }
+        else if (requestType == HandlerNum.NETWORK_PING){   // create netwrk ping handler
+            requestHandler = new NetworkPingHandler(request.getAddress(), request.getPort(), requestID, b);
+        }
         else{
             return null;
         }

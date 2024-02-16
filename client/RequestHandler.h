@@ -17,6 +17,7 @@ namespace RequestHandler{
     int createDeleteFromFileRequest(int requestID, string filePath, int offset, int numBytes, char *b);
     int createListDirRequest(int requestID, string filePath, char *b);
     int createGetFileAttrRequest(int requestID, string filePath, char *b);
+    int createNetworkPing(char *b);
 }
 
 #endif

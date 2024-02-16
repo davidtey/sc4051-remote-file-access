@@ -202,3 +202,9 @@ int RequestHandler::createGetFileAttrRequest(int requestID, string filePath, cha
 
     return (int) (cur - b);
 }
+
+int RequestHandler::createNetworkPing(char *b){
+    utils::marshalInt(HandlerNum::NETWORK_PING, b);
+
+    return 4;
+}
