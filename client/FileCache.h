@@ -1,8 +1,8 @@
 #ifndef FILECACHE_H
 #define FILECACHE_H
+#include <iostream>
 #include <string>
 #include <vector>
-#include <bits/stdc++.h>
 #include <chrono>
 
 using namespace std;
