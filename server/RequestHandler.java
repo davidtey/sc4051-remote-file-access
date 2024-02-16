@@ -74,8 +74,6 @@ public abstract class RequestHandler{
             return null;
         }
 
-        requestHandler.handleRequest();     // unmarshal request, invoke methods, marshal reply
-
         return requestHandler;
     }
 
