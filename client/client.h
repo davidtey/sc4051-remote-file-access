@@ -2,6 +2,8 @@
 #define CLIENT_H
 #include "DatabaseProxy.h"
 #include <iostream>
+#include <ios>
+#include <limits>
 
 using namespace std;
 

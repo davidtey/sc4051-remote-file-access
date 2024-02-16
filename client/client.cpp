@@ -15,6 +15,7 @@ int Client::connectMenu(){
         cout << "To access remote files, please connect to the server.\n";
         cout << "Server address: ";
         cin >> serverIP;
+        cin.sync();
         serverPort = readInt("Server port: ", 0, 65535);
         database.freshnessInterval = readInt("Freshness interval (in s): ", 0, INT_MAX);
 
@@ -144,11 +145,11 @@ int Client::readInt(string prompt, int min, int max){
         cin >> input;
 
         if (cin.fail()) {   // handle non digit inputs
-                cin.clear();
-                cin.sync();
-                cout << "Please enter an integer!\n";
-                input = -1;
-                continue;
+            cin.clear();
+            cin.ignore(256,'\n');
+            cout << "Please enter an integer!\n";
+            input = -1;
+            continue;
         }
 
         if (input < min || input > max){
