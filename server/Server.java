@@ -11,6 +11,7 @@ import java.net.DatagramPacket;
 public class Server{
     private static Invocation invocation;
     static UDPServer udpServer = new UDPServer();
+    static RequestHistory requestHistory = new RequestHistory();
     
     /** Main loop
      * 
@@ -22,9 +23,35 @@ public class Server{
         System.out.println("\n ---------- Request log ----------");
 
         while (true){
-            request = udpServer.receive();                                                // await request
-            byte[] reply = RequestHandler.handleIncomingRequest(request);                 // handle request
-            udpServer.send(reply, reply.length, request.getAddress(), request.getPort()); // reply to client
+            request = udpServer.receive();                                           // wait for request
+
+            if (invocation == Invocation.AT_LEAST_ONCE){   // no need to maintain history or do duplicate filtering
+                RequestHandler requestHandler = RequestHandler.handleIncomingRequest(request);  // create requestHandler obj (with appropriate class)
+                byte[] reply = requestHandler.handleRequest();  // handle request
+                udpServer.send(reply, reply.length, 
+                request.getAddress(), request.getPort()); // reply to client
+            }
+            else{
+                RequestHandler requestHandler = RequestHandler.handleIncomingRequest(request);
+                String addrString = requestHandler.addrString;
+                int requestID = requestHandler.requestID;
+                RequestHandler prevRequest = requestHistory.getRequestIfExists(addrString, requestID);
+                if (prevRequest == null){  // if request not in history
+                    byte[] reply = requestHandler.handleRequest();  // handle request
+                    requestHistory.insertRequest(addrString, requestHandler);
+
+                    udpServer.send(reply, reply.length, 
+                    request.getAddress(), request.getPort()); // reply to client
+                }
+                else{   // request in history
+                    byte[] reply = prevRequest.reply;
+
+                    udpServer.send(reply, reply.length, 
+                    request.getAddress(), request.getPort()); // reply to client
+                }
+                requestHistory.deleteRequest(addrString, requestID - 1);    // delete prev request with ID = requestID - 1
+                // we can do this since client will not skip requestID # until reply is received                
+            }
         }
     }
 
@@ -66,4 +93,6 @@ public class Server{
             myScanner.close();
         }
     }
+
+
 }
