@@ -51,7 +51,8 @@ int UDPClient::connectServer(string ip, int port){
  * Returns 1 when reply received
 */
 int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool useTimeout){
-    sendRequest(msg, msgLen);
+    
+    (sendRequest(msg, msgLen) == -1);
 
     while (recvReply(replyBuffer, useTimeout) == -1){
         this_thread::sleep_for(chrono::milliseconds(5000));
@@ -67,6 +68,10 @@ int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool
  * msgLen: length of request
 */
 int UDPClient::sendRequest(const char *msg, int msgLen){
+    if (((double) rand() / (RAND_MAX)) < LOSS_PROBABILITY){
+        cout << "Simulating request packet loss..." << endl;
+        return -1;
+    }
     // debug print
     cout << "Sending to server: ";
 

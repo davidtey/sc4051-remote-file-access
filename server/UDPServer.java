@@ -11,6 +11,7 @@ public class UDPServer {
     private DatagramSocket socket;                // socket object
     private final int port = 2222;                // always runs on port 2222
     private final int BUFFER_SIZE = 1024;         // buffer size
+    private final double LOSS_PROBABILITY = 0.2;  // probability of packet loss
 
     /**UDPServer Constructor
      */
@@ -49,13 +50,18 @@ public class UDPServer {
      * @param port client port
      */
     public void send(byte[] buf, int length, InetAddress address, int port){
-        System.out.println("Sending Bytes: " + Utils.bytesToHex(buf));
-        DatagramPacket reply = new DatagramPacket(buf, length, address, port);
-        try{
-            socket.send(reply);
+        if (Math.random() < LOSS_PROBABILITY){
+            System.out.println("Simulating reply packet loss...");
         }
-        catch (IOException e){
-            System.err.println("IOException occurred while sending reply!");
+        else{
+            try{
+                System.out.println("Sending Bytes: " + Utils.bytesToHex(buf));
+                DatagramPacket reply = new DatagramPacket(buf, length, address, port);
+                socket.send(reply);
+            }
+            catch (IOException e){
+                System.err.println("IOException occurred while sending reply!");
+            }
         }
     }
 }
