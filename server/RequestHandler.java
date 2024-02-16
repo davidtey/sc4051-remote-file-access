@@ -14,6 +14,7 @@ import java.util.List;
 public abstract class RequestHandler{
     InetAddress clientAddr;             // Client IP address
     int clientPort;                     // Client port
+    String addrString;                  // Client IP address + port
     int requestID;                      // Request ID
     HandlerNum requestType;             // Request Type
     byte[] request;                     // Request buffer
@@ -35,13 +36,14 @@ public abstract class RequestHandler{
         clientPort = port;
         requestID = reqID;
         request = req;
+        addrString = clientAddr.toString() + Integer.toString(clientPort);
     }
 
     /**Handle generic incoming request, sorts request type and calls the appropriate request handler to create a reply message
      * @param request incoming request from UDP server
      * @return reply message in the form of byte array
      */
-    public static byte[] handleIncomingRequest(DatagramPacket request){
+    public static RequestHandler handleIncomingRequest(DatagramPacket request){
         byte[] b = request.getData();                                                   // request byte array
         HandlerNum requestType = HandlerNum.fromInt(Utils.unmarshalInt(b, 0));    // get request type from request
         System.out.println("requestType: " + requestType);      // debug print
@@ -72,7 +74,9 @@ public abstract class RequestHandler{
             return null;
         }
 
-        return requestHandler.handleRequest();                          // unmarshal request, invoke methods, marshal reply and return
+        requestHandler.handleRequest();     // unmarshal request, invoke methods, marshal reply
+
+        return requestHandler;
     }
 
     /**Main function of read request handler, calls necessary procedures in order and returns reply message.
