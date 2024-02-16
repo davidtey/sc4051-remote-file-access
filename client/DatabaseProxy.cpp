@@ -17,7 +17,23 @@ DatabaseProxy::DatabaseProxy(){
  * Returns -1 if unsuccessful
 */
 int DatabaseProxy::connectToDatabase(string serverIP, int serverPort){
-    return udpClient.connectServer(serverIP, serverPort);
+    if (udpClient.connectServer(serverIP, serverPort) < 0) return -1;
+
+    int reqLength = RequestHandler::createNetworkPing(reqBuffer);
+    udpClient.sendRequest(reqBuffer, reqLength);
+
+    if (udpClient.recvReply(replyBuffer, true) < 0) return -1;
+
+    ReplyHandler::handleReply(replyBuffer);
+
+    tuple<HandlerNum, any> reply = ReplyHandler::handleReply(replyBuffer);
+    HandlerNum replyType = get<0>(reply);
+    if (replyType == NETWORK_ACK){
+        return 1;
+    }
+    else{
+        return -1;
+    }
 }
 
 /**Read from file
