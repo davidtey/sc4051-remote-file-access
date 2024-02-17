@@ -23,7 +23,7 @@ class UDPClient{
         int sockfd;
         int n;
         int timeout;
-        double LOSS_PROBABILITY = 0.2;
+        double LOSS_PROBABILITY = 0.1;
         struct sockaddr_in servaddr;
         socklen_t servaddrLen = sizeof(servaddr);
         char buffer[1024];

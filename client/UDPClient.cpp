@@ -6,6 +6,7 @@ using namespace std;
  * Creates socket object
 */
 UDPClient::UDPClient(){
+    srand(time(0));
     WORD wVersionRequested;
     WSADATA wsaData;
     wVersionRequested = MAKEWORD(2, 2);
@@ -52,10 +53,10 @@ int UDPClient::connectServer(string ip, int port){
 */
 int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool useTimeout){
     
-    (sendRequest(msg, msgLen) == -1);
+    sendRequest(msg, msgLen);
 
     while (recvReply(replyBuffer, useTimeout) == -1){
-        this_thread::sleep_for(chrono::milliseconds(5000));
+        this_thread::sleep_for(chrono::milliseconds(500));
         sendRequest(msg, msgLen);
     }
     return 1;
@@ -68,11 +69,13 @@ int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool
  * msgLen: length of request
 */
 int UDPClient::sendRequest(const char *msg, int msgLen){
+    cout << "Sending request to server..." << endl;
     if (((double) rand() / (RAND_MAX)) < LOSS_PROBABILITY){
         cout << "Simulating request packet loss..." << endl;
         return -1;
     }
     // debug print
+    /*
     cout << "Sending to server: ";
 
     for(int i=0; i<msgLen; i++){
@@ -82,7 +85,7 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
         cout << hex << setfill('0') << setw(2) << (int)msg[i];
     }
     cout << endl;
-
+    */
     
     if (sendto(sockfd, msg, msgLen, 0, 
     (const struct sockaddr *) &servaddr, sizeof(servaddr)) < 0){
@@ -101,7 +104,7 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
 int UDPClient::recvReply(char *buffer, bool useTimeout){
     //struct timeval timeout;
     if (useTimeout){
-        DWORD timeout = 10000;
+        DWORD timeout = 100;
     }
     else{
         DWORD timeout = 0;
@@ -112,6 +115,7 @@ int UDPClient::recvReply(char *buffer, bool useTimeout){
         0, (struct sockaddr *) &servaddr, &servaddrLen);
 
     // debug print
+    /*
     cout << "Reply from server: ";
     for(int i=0; i<n; i++){
         if (i % 4 == 0){
@@ -120,10 +124,14 @@ int UDPClient::recvReply(char *buffer, bool useTimeout){
         cout << hex << setfill('0') << setw(2) << (int)buffer[i];
     }
     cout << endl;
+    */
     
     if (n < 0){
         cout << "Client failed to receive message." << endl;
         return n;
+    }
+    else{
+        cout << "Reply received from server!" << endl;
     }
     
     buffer[n] = '\0';
