@@ -41,9 +41,10 @@ public class RequestHistory {
             clientReqHistory = new ArrayList<RequestHandler>();
         }
         clientReqHistory.add(requestHandler);
+        requestHistory.put(addrString, clientReqHistory);
     }
 
-    /**Delete request handler from histroy
+    /**Delete request handler from history
      * 
      * @param addrString IP address & port of client
      * @param requestID request ID of client
@@ -56,5 +57,24 @@ public class RequestHistory {
         else{
             clientReqHistory.removeIf(r -> (r.requestID == requestID));
         }
+    }
+
+    /**Prints current request history
+     * Returns request history string
+     */
+    public String toString(){
+        String out = "Request History: \n";
+        for (String clientAddr : requestHistory.keySet()){
+            out += "Client " + clientAddr + ": [";
+            List<RequestHandler> clientReqHistory = requestHistory.get(clientAddr);
+
+            for (RequestHandler clientReq : clientReqHistory){
+                out += clientReq.requestID + ", ";
+            }
+            out = out.substring(0, out.length() - 2);
+            out += "]\n";
+        }
+        
+        return out;
     }
 }
