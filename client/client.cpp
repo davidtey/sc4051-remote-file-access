@@ -32,7 +32,9 @@ int Client::connectMenu(){
  * 1. Read file (string filePath, int offset, int numBytes)
  * 2. Write to file (string filePath, int offset, string insertString)
  * 3. Monitor file (string filePath, int monitorInterval)
- * 4. Quit
+ * 4. Delete from file (string filePath, int offset, int numBytes)
+ * 5. List directory (string filePath)
+ * 6. Quit
 */
 int Client::mainMenu(){
     int choice = 0;
