@@ -23,6 +23,7 @@ public class Server{
         System.out.println("\n ---------- Request log ----------");
 
         while (true){
+            System.out.println("\nServer waiting for request...");
             request = udpServer.receive();                                           // wait for request
 
             if (invocation == Invocation.AT_LEAST_ONCE){   // no need to maintain history or do duplicate filtering
@@ -37,6 +38,7 @@ public class Server{
                 int requestID = requestHandler.requestID;
                 RequestHandler prevRequest = requestHistory.getRequestIfExists(addrString, requestID);
                 if (prevRequest == null){  // if request not in history
+                    System.out.println("[At-Most-Once Invocation] Request does not exist, executing request...");
                     byte[] reply = requestHandler.handleRequest();  // handle request
                     requestHistory.insertRequest(addrString, requestHandler);
 
@@ -44,13 +46,16 @@ public class Server{
                     request.getAddress(), request.getPort()); // reply to client
                 }
                 else{   // request in history
+                    System.out.println("[At-Most-Once Invocation] Request already exists, sending previous reply...");
                     byte[] reply = prevRequest.reply;
 
                     udpServer.send(reply, reply.length, 
                     request.getAddress(), request.getPort()); // reply to client
                 }
                 requestHistory.deleteRequest(addrString, requestID - 1);    // delete prev request with ID = requestID - 1
-                // we can do this since client will not skip requestID # until reply is received                
+                // we can do this since client will not skip requestID # until reply is received
+                //System.out.println(requestHistory); // debug print
+                
             }
         }
     }
