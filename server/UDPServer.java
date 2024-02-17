@@ -11,7 +11,7 @@ public class UDPServer {
     private DatagramSocket socket;                // socket object
     private final int port = 2222;                // always runs on port 2222
     private final int BUFFER_SIZE = 1024;         // buffer size
-    private final double LOSS_PROBABILITY = 0.2;  // probability of packet loss
+    private final double LOSS_PROBABILITY = 0.15;  // probability of packet loss
 
     /**UDPServer Constructor
      */
@@ -32,7 +32,7 @@ public class UDPServer {
             byte[] buffer = new byte[BUFFER_SIZE];
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
             socket.receive(request);
-            System.out.println("Received bytes: " + Utils.bytesToHex(request.getData()));
+            //System.out.println("Received bytes: " + Utils.bytesToHex(request.getData()));
             return request;
         }
         catch(IOException e){
@@ -55,7 +55,7 @@ public class UDPServer {
         }
         else{
             try{
-                System.out.println("Sending Bytes: " + Utils.bytesToHex(buf));
+                //System.out.println("Sending Bytes: " + Utils.bytesToHex(buf));
                 DatagramPacket reply = new DatagramPacket(buf, length, address, port);
                 socket.send(reply);
             }
