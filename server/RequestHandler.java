@@ -46,10 +46,10 @@ public abstract class RequestHandler{
     public static RequestHandler handleIncomingRequest(DatagramPacket request){
         byte[] b = request.getData();                                                   // request byte array
         HandlerNum requestType = HandlerNum.fromInt(Utils.unmarshalInt(b, 0));    // get request type from request
-        System.out.println("requestType: " + requestType);      // debug print
+        System.out.println("Request Type: " + requestType);      // debug print
 
         int requestID = Utils.unmarshalInt(b, 4);         // get request ID
-        System.out.println("requestID: " + requestID);          // debug print
+        System.out.println("Request ID: " + requestID);          // debug print
         RequestHandler requestHandler;
 
         if (requestType == HandlerNum.READ_FILE_REQUEST){               // create read file request handler
