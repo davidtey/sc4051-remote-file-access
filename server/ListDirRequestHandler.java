@@ -92,7 +92,11 @@ public class ListDirRequestHandler extends RequestHandler{
      */
     public void printReply(){   
         if (!errorEncountered){     // successful reply
-            System.out.println("[To " + clientAddr + ":" + clientPort + "] " + "Sending directory information at " + filePath + "...");
+            String printFilePath = filePath;
+            if (filePath.equals(".")){
+                printFilePath = "root";
+            }
+            System.out.println("[To " + clientAddr + ":" + clientPort + "] " + "Sending directory information at " + printFilePath + "...");
         }
         else{
             System.err.println("[To " + clientAddr + ":" + clientPort + "] " + errorMessage);
