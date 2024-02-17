@@ -20,6 +20,7 @@ namespace ReplyHandler{
     int handleDeleteFromFileAck(char *b);
     string handleListDirReply(char *b);
     long long int handleGetFileAttrReply(char *b);
+    int handleNetworkAck(char *b);
     string handleErrorReply(char *b);
 }
 

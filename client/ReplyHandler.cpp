@@ -37,6 +37,9 @@ tuple<HandlerNum, any> ReplyHandler::handleReply(char *b){
 
         case GET_FILE_ATTR_REPLY:
             return make_tuple(replyType, ReplyHandler::handleGetFileAttrReply(b));
+        
+        case NETWORK_ACK:
+            return make_tuple(replyType, ReplyHandler::handleNetworkAck(b));
 
         case ERROR_REPLY:
             return make_tuple(replyType, ReplyHandler::handleErrorReply(b));
@@ -165,6 +168,16 @@ long long int ReplyHandler::handleGetFileAttrReply(char *b){
     long long int serverLastModified = utils::unmarshalLong(cur);
 
     return serverLastModified;
+}
+
+/**Handles network ack reply
+ * 
+ * Params
+ * *b: char array of reply
+ * Returns 1
+*/
+int ReplyHandler::handleNetworkAck(char *b){
+    return 1;
 }
 
 /**Handles error reply
