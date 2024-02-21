@@ -45,7 +45,7 @@ public class ReadRequestHandler extends RequestHandler {
      */
     public void printRequest(){
         System.out.println("[From " + clientAddr + ":" + clientPort + "] Read File Request #" + requestID + " from " + 
-        filePath + " with " + offset + " bytes offset " + " for " + numBytes + " bytes."); 
+        filePath + " with " + offset + " bytes offset for " + numBytes + " bytes."); 
     }
 
     /**Execute read request, invoke methods from Database.

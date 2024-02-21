@@ -203,8 +203,14 @@ int RequestHandler::createGetFileAttrRequest(int requestID, string filePath, cha
     return (int) (cur - b);
 }
 
+/* Create network ping request
+ * Params
+ * *b: buffer to store request message
+ * 
+ * Marshal format:
+ * int (4 bytes): NETWORK_PING handler number
+*/
 int RequestHandler::createNetworkPing(char *b){
     utils::marshalInt(HandlerNum::NETWORK_PING, b);
-
     return 4;
 }

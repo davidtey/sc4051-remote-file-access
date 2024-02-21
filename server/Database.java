@@ -153,9 +153,9 @@ public class Database {
      * @param offset integer offset from start of file
      * @return true if offset is within file range
      */
-    public static boolean checkOffsetInFileRange(String filePath, int offset){
-        File file = new File(filePath);
-        if (offset < file.length()){
+    public static boolean checkOffsetInFileRange(String filePath, int offset) throws FileNotFoundException, IOException{
+        byte[] file = readAll(filePath);
+        if (offset <= file.length){
             return true;
         }
         return false;
@@ -195,8 +195,13 @@ public class Database {
      * @return length of file content
      */
     public static int getFileLength(String filePath){
-        File file = new File(filePath);
-        return (int) file.length();
+        try{
+            byte[] file = readAll(filePath);
+            return file.length;
+        }
+        catch(IOException e){
+            return -1;
+        }
     }
 
     /**Get last modified time of file

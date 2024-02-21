@@ -126,7 +126,7 @@ int Client::deleteFromFileMenu(){
 }
 
 int Client::listDirMenu(){
-    cout << "\n----- Read File -----" << endl;
+    cout << "\n----- List Directory -----" << endl;
     cout << "Directory path ('.' for root): ";
     getline(cin >> ws, filePath);                                   // user input filePath
     database.listDirectory(filePath);

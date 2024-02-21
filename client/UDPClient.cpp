@@ -56,6 +56,7 @@ int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool
     sendRequest(msg, msgLen);
 
     while (recvReply(replyBuffer, useTimeout) == -1){
+        cout << "Resending request to server..." << endl;
         this_thread::sleep_for(chrono::milliseconds(500));
         sendRequest(msg, msgLen);
     }
@@ -69,7 +70,7 @@ int UDPClient::sendNReceive(const char *msg, int msgLen, char *replyBuffer, bool
  * msgLen: length of request
 */
 int UDPClient::sendRequest(const char *msg, int msgLen){
-    cout << "Sending request to server..." << endl;
+    //cout << "Sending request to server..." << endl;
     if (((double) rand() / (RAND_MAX)) < LOSS_PROBABILITY){
         cout << "Simulating request packet loss..." << endl;
         return -1;
@@ -103,11 +104,9 @@ int UDPClient::sendRequest(const char *msg, int msgLen){
 */
 int UDPClient::recvReply(char *buffer, bool useTimeout){
     //struct timeval timeout;
+    DWORD timeout = 0;
     if (useTimeout){
-        DWORD timeout = 100;
-    }
-    else{
-        DWORD timeout = 0;
+        timeout = 1000;
     }
     setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));
 

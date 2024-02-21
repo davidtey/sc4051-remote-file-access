@@ -49,8 +49,8 @@ public class WriteRequestHandler extends RequestHandler{
     /**Execute write request, invoke methods from Database. todo
      */
     public void executeRequest(){
+        String fullFilePath = Database.databasePath + filePath;
         try{
-            String fullFilePath = Database.databasePath + filePath;
             Database.writeToFile(fullFilePath, offset, insertString.getBytes());
             serverLastModified = Database.getFileLastModified(fullFilePath);
             fileLength = Database.getFileLength(fullFilePath);
@@ -64,7 +64,7 @@ public class WriteRequestHandler extends RequestHandler{
         catch (OutOfFileRangeException e){                                      // handle if offset exceed file length
             errorEncountered = true;
             errorMessage = "Error encountered! File offset exceeds the file length. Offset: " + offset + 
-            " File length: " + Database.getFileLength(filePath);
+            " File length: " + Database.getFileLength(fullFilePath);
             errorMessageLength = errorMessage.length();
         }
         catch (IOException e){                                                  // handle IOException
